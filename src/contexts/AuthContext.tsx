@@ -1,7 +1,7 @@
 
 import { createContext, useContext, useEffect, useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
-import { supabase } from '@/lib/supabase';
+import { supabase, isInDemoMode } from '@/lib/supabase';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 
@@ -12,6 +12,7 @@ type AuthContextType = {
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
+  isDemoMode: boolean;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -21,6 +22,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
+  const isDemoMode = isInDemoMode();
 
   useEffect(() => {
     // Get initial session
@@ -45,6 +47,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signIn = async (email: string, password: string) => {
     try {
       setIsLoading(true);
+      
+      if (isDemoMode) {
+        // Simulate successful sign in for demo mode
+        const demoUser = { id: 'demo-user-id', email: email };
+        setUser(demoUser as User);
+        navigate('/dashboard');
+        toast({
+          title: "Demo Mode: Welcome!",
+          description: "You've signed in with demo credentials."
+        });
+        return;
+      }
+      
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
       navigate('/dashboard');
@@ -66,6 +81,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signUp = async (email: string, password: string) => {
     try {
       setIsLoading(true);
+      
+      if (isDemoMode) {
+        // Simulate successful sign up for demo mode
+        toast({
+          title: "Demo Mode: Account created",
+          description: "In demo mode, no actual account is created. Please sign in with any credentials."
+        });
+        navigate('/login');
+        return;
+      }
+      
       const { error } = await supabase.auth.signUp({ email, password });
       if (error) throw error;
       toast({
@@ -87,6 +113,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signOut = async () => {
     try {
       setIsLoading(true);
+      
+      if (isDemoMode) {
+        // Simulate successful sign out for demo mode
+        setUser(null);
+        navigate('/');
+        toast({
+          title: "Demo Mode: Signed out",
+          description: "You've been signed out of the demo account."
+        });
+        return;
+      }
+      
       await supabase.auth.signOut();
       navigate('/');
       toast({
@@ -105,7 +143,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, isLoading, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ user, session, isLoading, signIn, signUp, signOut, isDemoMode }}>
       {children}
     </AuthContext.Provider>
   );
