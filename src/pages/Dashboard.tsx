@@ -2,9 +2,9 @@
 import DashboardHeader from '@/components/DashboardHeader';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
+import SocialConnections from '@/components/SocialConnections';
 import { 
-  BarChart, Calendar, Clock, Instagram, Youtube, 
-  Facebook, Twitter, Linkedin, PlusCircle 
+  BarChart, Calendar, Clock, PlusCircle 
 } from 'lucide-react';
 
 const Dashboard = () => {
@@ -26,7 +26,7 @@ const Dashboard = () => {
 
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div className="glass-card p-6">
+            <div className="glass-card p-6 transition duration-300 hover:shadow-md hover:bg-background/80">
               <div className="flex justify-between items-start">
                 <div>
                   <p className="text-muted-foreground text-sm font-medium">Total Posts</p>
@@ -43,7 +43,7 @@ const Dashboard = () => {
               </div>
             </div>
             
-            <div className="glass-card p-6">
+            <div className="glass-card p-6 transition duration-300 hover:shadow-md hover:bg-background/80">
               <div className="flex justify-between items-start">
                 <div>
                   <p className="text-muted-foreground text-sm font-medium">Scheduled Posts</p>
@@ -60,7 +60,7 @@ const Dashboard = () => {
               </div>
             </div>
             
-            <div className="glass-card p-6">
+            <div className="glass-card p-6 transition duration-300 hover:shadow-md hover:bg-background/80">
               <div className="flex justify-between items-start">
                 <div>
                   <p className="text-muted-foreground text-sm font-medium">Posted Content</p>
@@ -79,46 +79,7 @@ const Dashboard = () => {
           </div>
 
           {/* Connected Platforms */}
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold mb-4">Connected Platforms</h2>
-            <div className="glass-card p-6">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <Button variant="outline" className="h-auto py-4 px-4 flex-col items-center justify-center gap-3 rounded-xl border-dashed">
-                  <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center">
-                    <Youtube className="h-6 w-6 text-red-500" />
-                  </div>
-                  <span className="text-sm">Connect YouTube</span>
-                </Button>
-                
-                <Button variant="outline" className="h-auto py-4 px-4 flex-col items-center justify-center gap-3 rounded-xl border-dashed">
-                  <div className="w-12 h-12 rounded-full bg-pink-500/10 flex items-center justify-center">
-                    <Instagram className="h-6 w-6 text-pink-500" />
-                  </div>
-                  <span className="text-sm">Connect Instagram</span>
-                </Button>
-                
-                <Button variant="outline" className="h-auto py-4 px-4 flex-col items-center justify-center gap-3 rounded-xl border-dashed">
-                  <div className="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center">
-                    <Facebook className="h-6 w-6 text-blue-500" />
-                  </div>
-                  <span className="text-sm">Connect Facebook</span>
-                </Button>
-                
-                <Button variant="outline" className="h-auto py-4 px-4 flex-col items-center justify-center gap-3 rounded-xl border-dashed">
-                  <div className="w-12 h-12 rounded-full bg-blue-400/10 flex items-center justify-center">
-                    <Twitter className="h-6 w-6 text-blue-400" />
-                  </div>
-                  <span className="text-sm">Connect Twitter</span>
-                </Button>
-              </div>
-              
-              <div className="mt-6 flex justify-center">
-                <Button variant="outline" size="sm" className="text-muted-foreground">
-                  <PlusCircle className="h-4 w-4 mr-2" /> Connect More Platforms
-                </Button>
-              </div>
-            </div>
-          </div>
+          <SocialConnections />
           
           {/* Empty State - Recent Posts */}
           <div>
@@ -131,7 +92,7 @@ const Dashboard = () => {
               <p className="text-muted-foreground mb-6 max-w-md mx-auto">
                 Create your first post to schedule and automate your content across multiple platforms.
               </p>
-              <Button asChild className="rounded-full">
+              <Button asChild className="rounded-full animate-pulse hover:animate-none">
                 <a href="/dashboard/new-post">Create Your First Post</a>
               </Button>
             </div>

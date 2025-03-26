@@ -1,46 +1,30 @@
 
-const platforms = [
-  {
-    name: "YouTube",
-    icon: "/assets/youtube.svg", 
-    color: "bg-red-500"
-  },
-  {
-    name: "Instagram",
-    icon: "/assets/instagram.svg",
-    color: "bg-pink-500"
-  },
-  {
-    name: "TikTok",
-    icon: "/assets/tiktok.svg",
-    color: "bg-black"
-  },
-  {
-    name: "Facebook",
-    icon: "/assets/facebook.svg",
-    color: "bg-blue-600"
-  },
-  {
-    name: "Snapchat",
-    icon: "/assets/snapchat.svg",
-    color: "bg-yellow-400"
-  },
-  {
-    name: "Twitter/X",
-    icon: "/assets/twitter.svg",
-    color: "bg-sky-500"
-  },
-  {
-    name: "LinkedIn",
-    icon: "/assets/linkedin.svg",
-    color: "bg-blue-700"
-  }
-];
+import { useState } from 'react';
+import PlatformCard from './PlatformCard';
+import { usePlatformConnections } from '@/hooks/usePlatformConnections';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+import { PlusCircle } from 'lucide-react';
 
 const Platforms = () => {
+  const [isAnimating, setIsAnimating] = useState(false);
+  const { platforms, isLoading, connectPlatform, disconnectPlatform } = usePlatformConnections();
+
+  const handleConnect = async (platformName: string) => {
+    setIsAnimating(true);
+    await connectPlatform(platformName);
+    setTimeout(() => setIsAnimating(false), 600);
+  };
+
+  const handleDisconnect = async (platformName: string) => {
+    setIsAnimating(true);
+    await disconnectPlatform(platformName);
+    setTimeout(() => setIsAnimating(false), 600);
+  };
+
   return (
     <section id="platforms" className="py-20 md:py-32 bg-gradient-to-b from-background to-secondary/50 relative overflow-hidden">
-      {/* Background decorative circle */}
+      {/* Background decorative circles */}
       <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] border border-primary/10 rounded-full opacity-60 animate-spin-slow"></div>
       <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border border-accent/10 rounded-full opacity-60 animate-spin-slow" style={{ animationDuration: '30s' }}></div>
       
@@ -54,19 +38,40 @@ const Platforms = () => {
           </p>
         </div>
         
-        <div className="flex flex-wrap justify-center gap-6 md:gap-8 mt-12">
-          {platforms.map((platform, index) => (
-            <div 
-              key={platform.name}
-              className="glass-card p-6 flex flex-col items-center w-[140px] h-[140px] justify-center transition-all hover:scale-105 animate-fade-in"
-              style={{ animationDelay: `${0.1 + index * 0.1}s` }}
-            >
-              <div className={`w-12 h-12 rounded-full ${platform.color} flex items-center justify-center mb-3`}>
-                <div className="w-6 h-6 bg-white rounded"></div>
-              </div>
-              <span className="font-medium">{platform.name}</span>
-            </div>
-          ))}
+        <div 
+          className={cn(
+            "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-12 transition-all duration-500",
+            isAnimating && "scale-[0.98] opacity-90"
+          )}
+        >
+          {isLoading ? (
+            // Loading skeleton
+            Array(6).fill(0).map((_, index) => (
+              <div 
+                key={`skeleton-${index}`} 
+                className="h-[200px] rounded-xl bg-muted/50 animate-pulse"
+              ></div>
+            ))
+          ) : (
+            // Actual platform cards
+            platforms.map((platform, index) => (
+              <PlatformCard
+                key={platform.name}
+                name={platform.name}
+                icon={platform.icon}
+                color={platform.color}
+                isConnected={platform.isConnected}
+                onConnect={() => handleConnect(platform.name)}
+                onDisconnect={() => handleDisconnect(platform.name)}
+              />
+            ))
+          )}
+        </div>
+        
+        <div className="flex justify-center mt-8">
+          <Button variant="outline" size="sm" className="text-muted-foreground">
+            <PlusCircle className="h-4 w-4 mr-2" /> More Platforms Coming Soon
+          </Button>
         </div>
         
         <div className="mt-20 md:mt-32 bg-gradient-to-r from-primary/5 to-accent/5 rounded-2xl p-8 md:p-12 relative overflow-hidden">
