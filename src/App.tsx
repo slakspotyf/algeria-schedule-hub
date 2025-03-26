@@ -12,6 +12,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import NewPost from "./pages/NewPost";
+import SocialMediaConnections from "./pages/SocialMediaConnections";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -39,6 +40,7 @@ const App = () => {
               <Route element={<ProtectedRoute />}>
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/dashboard/new-post" element={<NewPost />} />
+                <Route path="/dashboard/connections" element={<SocialMediaConnections />} />
                 {/* Add more protected routes as needed */}
               </Route>
               

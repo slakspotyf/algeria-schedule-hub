@@ -4,8 +4,9 @@ import { Button } from '@/components/ui/button';
 import { usePlatformConnections } from '@/hooks/usePlatformConnections';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
-import { PlusCircle, AlertCircle, RefreshCw } from 'lucide-react';
+import { PlusCircle, AlertCircle, RefreshCw, ArrowUpRight } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { Link } from 'react-router-dom';
 
 type PlatformIconProps = {
   name: string;
@@ -143,7 +144,15 @@ const SocialConnections = () => {
 
   return (
     <div className="mb-8">
-      <h2 className="text-xl font-semibold mb-4">Connected Platforms</h2>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-xl font-semibold">Connected Platforms</h2>
+        <Button variant="outline" size="sm" asChild>
+          <Link to="/dashboard/connections">
+            Manage API Connections <ArrowUpRight className="ml-1 h-3 w-3" />
+          </Link>
+        </Button>
+      </div>
+      
       <div className={cn(
         "glass-card p-6 transition-all duration-300",
         isAnimating && "scale-[0.98] opacity-95"
@@ -171,7 +180,7 @@ const SocialConnections = () => {
             </div>
             
             {!hasConnections && (
-              <div className="mt-6 p-4 border border-dashed border-yellow-300/50 rounded-lg bg-yellow-50/10 flex items-center gap-3 animate-pulse">
+              <div className="mt-6 p-4 border border-dashed border-yellow-300/50 rounded-lg bg-yellow-50/10 flex items-center gap-3">
                 <AlertCircle className="h-5 w-5 text-yellow-400" />
                 <p className="text-sm text-muted-foreground">
                   Connect your social media accounts to start posting content across platforms
@@ -179,10 +188,16 @@ const SocialConnections = () => {
               </div>
             )}
             
-            <div className="mt-6 flex justify-center">
+            <div className="mt-6 flex justify-between">
               <Button variant="outline" size="sm" className="text-muted-foreground group transition-all duration-300 hover:bg-primary/5">
                 <PlusCircle className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform duration-300" /> 
                 Connect More Platforms
+              </Button>
+              
+              <Button asChild size="sm" variant="default">
+                <Link to="/dashboard/connections">
+                  Advanced API Setup <ArrowUpRight className="ml-1 h-3 w-3" />
+                </Link>
               </Button>
             </div>
           </>

@@ -13,6 +13,7 @@ if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KE
 // Create the Supabase client with proper auth configuration
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
+    storage: localStorage,
     persistSession: true,
     autoRefreshToken: true,
   }
@@ -24,6 +25,7 @@ export const signInWithProvider = async (provider: 'google' | 'facebook' | 'twit
     provider,
     options: {
       redirectTo: `${window.location.origin}/dashboard`,
+      persistSession: true,
     }
   });
   
