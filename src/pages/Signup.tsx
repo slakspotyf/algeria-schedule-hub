@@ -6,14 +6,15 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Facebook, Twitter, Linkedin } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
 
 const Signup = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
-  const { signUp, isLoading } = useAuth();
+  const { signUp, signInWithSocialProvider, isLoading } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,7 +38,18 @@ const Signup = () => {
     try {
       await signUp(email, password);
     } catch (err: any) {
-      setError(err.message || 'An error occurred during sign up');
+      // Error is handled in AuthContext, this is just for additional UI state management
+      console.error(err);
+    }
+  };
+
+  const handleSocialLogin = async (provider: 'google' | 'facebook' | 'twitter' | 'linkedin_oidc') => {
+    setError('');
+    try {
+      await signInWithSocialProvider(provider);
+    } catch (err: any) {
+      // Error is handled in AuthContext, this is just for additional UI state management
+      console.error(err);
     }
   };
 
@@ -108,6 +120,35 @@ const Signup = () => {
             {isLoading ? 'Creating Account...' : 'Create Account'}
           </Button>
         </form>
+        
+        <div className="relative my-6">
+          <Separator />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="bg-background px-2 text-sm text-muted-foreground">Or continue with</span>
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-2 gap-4">
+          <Button
+            variant="outline"
+            className="flex items-center justify-center gap-2"
+            onClick={() => handleSocialLogin('google')}
+            disabled={isLoading}
+          >
+            <img src="/assets/google.svg" alt="Google" className="w-5 h-5" />
+            Google
+          </Button>
+          
+          <Button
+            variant="outline"
+            className="flex items-center justify-center gap-2"
+            onClick={() => handleSocialLogin('facebook')}
+            disabled={isLoading}
+          >
+            <Facebook className="w-5 h-5 text-blue-600" />
+            Facebook
+          </Button>
+        </div>
         
         <div className="text-center">
           <p className="text-sm text-muted-foreground">

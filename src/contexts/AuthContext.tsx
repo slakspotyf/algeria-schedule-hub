@@ -1,7 +1,7 @@
 
 import { createContext, useContext, useEffect, useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
-import { supabase, isInDemoMode } from '@/lib/supabase';
+import { supabase, signInWithProvider, isInDemoMode } from '@/lib/supabase';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 
@@ -12,6 +12,7 @@ type AuthContextType = {
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
+  signInWithSocialProvider: (provider: 'google' | 'facebook' | 'twitter' | 'linkedin_oidc') => Promise<void>;
   isDemoMode: boolean;
 };
 
@@ -73,6 +74,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         title: "Authentication failed",
         description: error.message || "Failed to sign in. Please try again."
       });
+      throw error;
     } finally {
       setIsLoading(false);
     }
@@ -105,6 +107,37 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         title: "Registration failed",
         description: error.message || "Failed to create account. Please try again."
       });
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const signInWithSocialProvider = async (provider: 'google' | 'facebook' | 'twitter' | 'linkedin_oidc') => {
+    try {
+      setIsLoading(true);
+      
+      if (isDemoMode) {
+        // Simulate successful social sign-in for demo mode
+        const demoUser = { id: `demo-${provider}-user-id`, email: `demo-${provider}@example.com` };
+        setUser(demoUser as User);
+        navigate('/dashboard');
+        toast({
+          title: "Demo Mode: Social Login",
+          description: `You've signed in with demo ${provider} credentials.`
+        });
+        return;
+      }
+      
+      await signInWithProvider(provider);
+      // No need to navigate - OAuth will handle redirection
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Social login failed",
+        description: error.message || `Failed to sign in with ${provider}. Please try again.`
+      });
+      throw error;
     } finally {
       setIsLoading(false);
     }
@@ -143,7 +176,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, isLoading, signIn, signUp, signOut, isDemoMode }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      session, 
+      isLoading, 
+      signIn, 
+      signUp, 
+      signOut, 
+      signInWithSocialProvider, 
+      isDemoMode 
+    }}>
       {children}
     </AuthContext.Provider>
   );

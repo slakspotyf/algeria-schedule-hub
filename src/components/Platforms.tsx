@@ -1,14 +1,37 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import PlatformCard from './PlatformCard';
 import { usePlatformConnections } from '@/hooks/usePlatformConnections';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { PlusCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Platforms = () => {
   const [isAnimating, setIsAnimating] = useState(false);
+  const [visiblePlatforms, setVisiblePlatforms] = useState<number>(0);
   const { platforms, isLoading, connectPlatform, disconnectPlatform } = usePlatformConnections();
+
+  useEffect(() => {
+    // Animate platforms appearing one by one
+    const timer = setTimeout(() => {
+      if (visiblePlatforms < platforms.length) {
+        setVisiblePlatforms(prev => Math.min(prev + 1, platforms.length));
+      }
+    }, 150);
+    
+    return () => clearTimeout(timer);
+  }, [visiblePlatforms, platforms.length]);
+
+  // Reset animation counter when platforms change or page loads
+  useEffect(() => {
+    setVisiblePlatforms(0);
+    const timer = setTimeout(() => {
+      setVisiblePlatforms(1);
+    }, 500);
+    
+    return () => clearTimeout(timer);
+  }, [platforms]);
 
   const handleConnect = async (platformName: string) => {
     setIsAnimating(true);
@@ -53,17 +76,26 @@ const Platforms = () => {
               ></div>
             ))
           ) : (
-            // Actual platform cards
+            // Actual platform cards with staggered animation
             platforms.map((platform, index) => (
-              <PlatformCard
+              <div
                 key={platform.name}
-                name={platform.name}
-                icon={platform.icon}
-                color={platform.color}
-                isConnected={platform.isConnected}
-                onConnect={() => handleConnect(platform.name)}
-                onDisconnect={() => handleDisconnect(platform.name)}
-              />
+                className={cn(
+                  "transition-all duration-500 transform",
+                  index >= visiblePlatforms && "opacity-0 translate-y-8",
+                  index < visiblePlatforms && "animate-fade-in"
+                )}
+                style={{ animationDelay: `${index * 0.1}s` }}
+              >
+                <PlatformCard
+                  name={platform.name}
+                  icon={platform.icon}
+                  color={platform.color}
+                  isConnected={platform.isConnected}
+                  onConnect={() => handleConnect(platform.name)}
+                  onDisconnect={() => handleDisconnect(platform.name)}
+                />
+              </div>
             ))
           )}
         </div>
@@ -85,9 +117,9 @@ const Platforms = () => {
               Join thousands of content creators and businesses in Algeria who save hours every week with Sahla-Post.
             </p>
             <div className="inline-block bg-white shadow-md rounded-full p-1 animate-fade-in" style={{ animationDelay: "0.2s" }}>
-              <button className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 py-3 font-medium transition-all">
-                Get Started Free
-              </button>
+              <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 py-3 font-medium transition-all">
+                <Link to="/signup">Get Started Free</Link>
+              </Button>
             </div>
           </div>
         </div>
