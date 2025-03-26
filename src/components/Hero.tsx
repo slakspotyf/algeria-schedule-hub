@@ -1,5 +1,6 @@
 
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 const Hero = () => {
   return (
@@ -20,10 +21,19 @@ const Hero = () => {
             </p>
             <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start animate-fade-in" style={{ animationDelay: "0.2s" }}>
               <Button asChild size="lg" className="rounded-full text-base px-8">
-                <a href="#signup">Get Started Free</a>
+                <Link to="/signup">Get Started Free</Link>
               </Button>
-              <Button asChild variant="outline" size="lg" className="rounded-full text-base px-8">
-                <a href="#demo">Watch Demo</a>
+              <Button 
+                asChild 
+                variant="outline" 
+                size="lg" 
+                className="rounded-full text-base px-8"
+                onClick={() => {
+                  // In a real app, this would show a video demo
+                  alert("Demo video would play here!");
+                }}
+              >
+                <Link to="#demo">Watch Demo</Link>
               </Button>
             </div>
             <p className="mt-6 text-sm text-muted-foreground animate-fade-in" style={{ animationDelay: "0.3s" }}>

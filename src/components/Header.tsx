@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Menu, X } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -29,11 +30,11 @@ const Header = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center">
           <div className="flex items-center">
-            <a href="#" className="flex items-center">
+            <Link to="/" className="flex items-center">
               <span className="font-display font-bold text-2xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                 Sahla-Post
               </span>
-            </a>
+            </Link>
           </div>
 
           {/* Desktop Navigation */}
@@ -48,10 +49,10 @@ const Header = () => {
               Pricing
             </a>
             <Button asChild variant="outline" className="rounded-full">
-              <a href="#login">Log In</a>
+              <Link to="/login">Log In</Link>
             </Button>
             <Button asChild className="rounded-full">
-              <a href="#signup">Get Started</a>
+              <Link to="/signup">Get Started</Link>
             </Button>
           </nav>
 
@@ -96,10 +97,10 @@ const Header = () => {
             </a>
             <div className="pt-2 flex flex-col space-y-3">
               <Button asChild variant="outline" className="w-full justify-center rounded-full">
-                <a href="#login">Log In</a>
+                <Link to="/login" onClick={() => setMobileMenuOpen(false)}>Log In</Link>
               </Button>
               <Button asChild className="w-full justify-center rounded-full">
-                <a href="#signup">Get Started</a>
+                <Link to="/signup" onClick={() => setMobileMenuOpen(false)}>Get Started</Link>
               </Button>
             </div>
           </div>
