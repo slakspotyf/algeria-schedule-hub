@@ -1,4 +1,6 @@
 
+import { Link } from "react-router-dom";
+
 const Footer = () => {
   const currentYear = new Date().getFullYear();
   
@@ -7,11 +9,11 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12">
           <div className="md:col-span-1">
-            <a href="#" className="inline-block mb-4">
+            <Link to="/" className="inline-block mb-4">
               <span className="font-display font-bold text-2xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                 Sahla-Post
               </span>
-            </a>
+            </Link>
             <p className="text-muted-foreground mb-4 max-w-xs">
               Automating social media management for creators and businesses across Algeria.
             </p>
@@ -67,7 +69,7 @@ const Footer = () => {
             &copy; {currentYear} Sahla-Post. All rights reserved.
           </p>
           <div className="flex space-x-6 mt-4 md:mt-0">
-            <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Privacy Policy</a>
+            <Link to="/privacy-policy" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Privacy Policy</Link>
             <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Terms of Service</a>
             <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Cookies</a>
           </div>

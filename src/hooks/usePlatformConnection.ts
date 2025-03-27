@@ -74,7 +74,9 @@ export const usePlatformConnection = (
     
     // If we have a new OAuth session
     if (session?.provider_token && session?.provider_refresh_token) {
-      const provider = session.provider_token.provider || 'unknown';
+      // The provider information might be in user metadata or elsewhere
+      // Fixed: Removed incorrect access to non-existent provider property
+      const providerInfo = session.user?.app_metadata?.provider || 'unknown';
       
       // Store the OAuth tokens
       const tokens = {
@@ -84,11 +86,11 @@ export const usePlatformConnection = (
         profileData: session.user?.user_metadata
       };
       
-      await connectPlatform(provider);
+      await connectPlatform(providerInfo);
       
       toast({
         title: "Platform Connected",
-        description: `Your ${provider} account has been successfully connected`
+        description: `Your ${providerInfo} account has been successfully connected`
       });
       
       // Refresh platform connections

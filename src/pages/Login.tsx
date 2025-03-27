@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -6,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { ArrowLeft, Facebook, Twitter, Linkedin } from 'lucide-react';
+import { ArrowLeft, Facebook } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 
 const Login = () => {
@@ -27,7 +26,6 @@ const Login = () => {
     try {
       await signIn(email, password);
     } catch (err: any) {
-      // Error is handled in AuthContext, this is just for additional UI state management
       console.error(err);
     }
   };
@@ -37,7 +35,6 @@ const Login = () => {
     try {
       await signInWithSocialProvider(provider);
     } catch (err: any) {
-      // Error is handled in AuthContext, this is just for additional UI state management
       console.error(err);
     }
   };
@@ -137,6 +134,12 @@ const Login = () => {
             Don't have an account?{' '}
             <Link to="/signup" className="text-primary hover:underline">
               Sign up
+            </Link>
+          </p>
+          <p className="text-xs text-muted-foreground mt-2">
+            By signing in, you agree to our{' '}
+            <Link to="/privacy-policy" className="text-primary hover:underline">
+              Privacy Policy
             </Link>
           </p>
         </div>

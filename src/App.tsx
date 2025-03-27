@@ -14,6 +14,7 @@ import Dashboard from "./pages/Dashboard";
 import NewPost from "./pages/NewPost";
 import SocialMediaConnections from "./pages/SocialMediaConnections";
 import NotFound from "./pages/NotFound";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 
 const queryClient = new QueryClient();
 
@@ -35,6 +36,7 @@ const App = () => {
               <Route path="/" element={<Index />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               
               {/* Protected routes */}
               <Route element={<ProtectedRoute />}>
