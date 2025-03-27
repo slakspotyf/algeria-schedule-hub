@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import { PlusCircle, AlertCircle, RefreshCw, ArrowUpRight } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { Link } from 'react-router-dom';
+import { signInWithProvider } from '@/lib/supabase';
 
 type PlatformIconProps = {
   name: string;
@@ -63,8 +64,8 @@ const PlatformIcon = ({ name, icon, color, isConnected, onClick, isLoading }: Pl
 };
 
 const SocialConnections = () => {
-  const { platforms, isLoading, connectPlatform, disconnectPlatform } = usePlatformConnections();
-  const { user, signInWithSocialProvider } = useAuth();
+  const { platforms, isLoading, connectPlatform, disconnectPlatform, refreshPlatforms } = usePlatformConnections();
+  const { user } = useAuth();
   const [connectingPlatform, setConnectingPlatform] = useState<string | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
 
@@ -109,19 +110,17 @@ const SocialConnections = () => {
         
         if (provider) {
           // Initiate social login flow for this platform
-          try {
-            await signInWithSocialProvider(provider);
-            // After successful OAuth, the platform will be connected
-          } catch (error) {
-            console.error("Error connecting platform:", error);
-            throw error;
-          }
+          await signInWithProvider(provider);
+          // The OAuth redirect will happen, and when the user returns
+          // the connection will be established in the AuthContext
+          
+          // Success toast will be shown after return from OAuth flow
         } else {
           // For platforms without direct OAuth
           await connectPlatform(platform.name);
           toast({
-            title: "Platform connected",
-            description: `Your ${platform.name} account has been connected successfully`
+            title: "API Connection Required",
+            description: `Please go to the Connections page to set up your ${platform.name} API credentials`
           });
         }
       }
@@ -137,6 +136,38 @@ const SocialConnections = () => {
       setTimeout(() => setIsAnimating(false), 400);
     }
   };
+
+  // Check for OAuth response in URL when component mounts
+  useEffect(() => {
+    const checkOAuthResponse = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      // If we have a new OAuth session
+      if (session?.provider_token && session?.provider_refresh_token) {
+        const provider = session.provider_token.provider || 'unknown';
+        
+        // Store the OAuth tokens
+        const tokens = {
+          accessToken: session.provider_token,
+          refreshToken: session.provider_refresh_token,
+          providerUserId: session.user?.id,
+          profileData: session.user?.user_metadata
+        };
+        
+        await connectPlatform(provider);
+        
+        toast({
+          title: "Platform Connected",
+          description: `Your ${provider} account has been successfully connected`
+        });
+        
+        // Refresh platform connections
+        refreshPlatforms();
+      }
+    };
+    
+    checkOAuthResponse();
+  }, []);
 
   // Get first 4 platforms for main display
   const displayPlatforms = platforms.slice(0, 4);

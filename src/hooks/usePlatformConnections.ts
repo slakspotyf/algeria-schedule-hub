@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
 
@@ -79,21 +79,51 @@ export const usePlatformConnections = () => {
         return;
       }
       
-      // Get connected platforms from database
-      const { data, error } = await supabase
+      // Get connected platforms from database - first check connected_platforms table
+      const { data: oauthData, error: oauthError } = await supabase
         .from('connected_platforms')
         .select('*')
         .eq('user_id', user.id);
 
-      if (error) throw error;
-
-      // Map database results to platform objects
-      const connectedPlatformNames = new Set(data.map(item => item.platform_name.toLowerCase()));
+      if (oauthError) throw oauthError;
       
-      const mergedPlatforms = defaultPlatforms.map(platform => ({
-        ...platform,
-        isConnected: connectedPlatformNames.has(platform.name.toLowerCase())
-      }));
+      // Then check platform_api_credentials table for API key based connections
+      const { data: apiData, error: apiError } = await supabase
+        .from('platform_api_credentials')
+        .select('*')
+        .eq('user_id', user.id);
+        
+      if (apiError) throw apiError;
+
+      // Combine the results from both tables
+      const oauthConnections = new Set(oauthData.map(item => item.platform_name.toLowerCase()));
+      const apiConnections = new Set(apiData.map(item => item.platform_name.toLowerCase()));
+      
+      // A platform is connected if it exists in either table
+      const connectedPlatformNames = new Set([...oauthConnections, ...apiConnections]);
+      
+      const mergedPlatforms = defaultPlatforms.map(platform => {
+        const isConnected = connectedPlatformNames.has(platform.name.toLowerCase());
+        
+        // Find the platform connection details
+        const oauthConnection = oauthData.find(conn => 
+          conn.platform_name.toLowerCase() === platform.name.toLowerCase()
+        );
+        
+        const apiConnection = apiData.find(conn => 
+          conn.platform_name.toLowerCase() === platform.name.toLowerCase()
+        );
+        
+        // Merge data from both sources, prioritizing OAuth data
+        return {
+          ...platform,
+          isConnected,
+          userId: oauthConnection?.platform_user_id || apiConnection?.user_id,
+          accessToken: oauthConnection?.access_token || apiConnection?.access_token,
+          refreshToken: oauthConnection?.refresh_token || apiConnection?.refresh_token,
+          profileData: oauthConnection?.profile_data || apiConnection?.additional_data
+        };
+      });
 
       setPlatforms(mergedPlatforms);
     } catch (error) {
@@ -123,18 +153,16 @@ export const usePlatformConnections = () => {
     }
 
     try {
-      // Simulate platform connection - in reality this would happen after OAuth
-      const platformData = {
-        user_id: user.id,
-        platform_name: platformName,
-        platform_user_id: `demo_${platformName}_${user.id.substring(0, 8)}`,
-        access_token: `demo_token_${Math.random().toString(36).substring(7)}`,
-        profile_data: { username: `${platformName.toLowerCase()}_user` }
-      };
-
+      // Create a record in the connected_platforms table
       const { error } = await supabase
         .from('connected_platforms')
-        .insert(platformData);
+        .upsert({
+          user_id: user.id,
+          platform_name: platformName,
+          platform_user_id: `user_${Math.random().toString(36).substring(7)}`,
+          access_token: `temp_token_${Math.random().toString(36).substring(7)}`,
+          profile_data: { username: `${platformName.toLowerCase()}_user` }
+        });
 
       if (error) throw error;
 
@@ -162,13 +190,19 @@ export const usePlatformConnections = () => {
     }
 
     try {
-      const { error } = await supabase
+      // Remove from connected_platforms table
+      await supabase
         .from('connected_platforms')
         .delete()
         .eq('user_id', user.id)
         .eq('platform_name', platformName);
-
-      if (error) throw error;
+        
+      // Also remove from platform_api_credentials if exists
+      await supabase
+        .from('platform_api_credentials')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('platform_name', platformName);
 
       // Update local state
       setPlatforms(prev => 

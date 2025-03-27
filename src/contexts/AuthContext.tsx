@@ -1,7 +1,7 @@
 
 import { createContext, useContext, useEffect, useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
-import { supabase, signInWithProvider, isInDemoMode } from '@/lib/supabase';
+import { supabase, signInWithProvider, isInDemoMode, saveOAuthConnection } from '@/lib/supabase';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 
@@ -28,10 +28,33 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+      async (event, session) => {
+        console.log('Auth state changed:', event, session?.user?.id);
         setSession(session);
         setUser(session?.user ?? null);
         setIsLoading(false);
+        
+        // Handle OAuth tokens if they exist
+        if (event === 'SIGNED_IN' && session?.provider_token) {
+          // Use setTimeout to avoid Supabase auth deadlock
+          setTimeout(async () => {
+            const provider = session.user?.app_metadata?.provider || 'unknown';
+            console.log('Saving OAuth connection for provider:', provider);
+            
+            // Save the OAuth connection
+            await saveOAuthConnection(provider, {
+              accessToken: session.provider_token,
+              refreshToken: session.provider_refresh_token,
+              providerUserId: session.user?.id,
+              profileData: session.user?.user_metadata
+            });
+            
+            toast({
+              title: "Platform Connected",
+              description: `Your ${provider} account has been successfully connected`
+            });
+          }, 0);
+        }
       }
     );
 
@@ -125,11 +148,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         // Simulate successful social sign-in for demo mode
         const demoUser = { id: `demo-${provider}-user-id`, email: `demo-${provider}@example.com` };
         setUser(demoUser as User);
-        navigate('/dashboard');
-        toast({
-          title: "Demo Mode: Social Login",
-          description: `You've signed in with demo ${provider} credentials.`
-        });
+        
+        // Simulate platform connection
+        setTimeout(() => {
+          toast({
+            title: "Demo Mode: Social Login",
+            description: `You've connected your ${provider} account successfully.`
+          });
+        }, 1000);
+        
         return;
       }
       

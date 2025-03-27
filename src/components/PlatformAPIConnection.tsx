@@ -1,12 +1,12 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/lib/supabase';
+import { supabase, signInWithProvider } from '@/lib/supabase';
 import { RefreshCw, LinkIcon, AlertCircle } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
@@ -34,8 +34,25 @@ const PlatformAPIConnection = ({
   const [error, setError] = useState('');
   const { user } = useAuth();
 
+  // Map platform name to OAuth provider
+  const getOAuthProvider = (platformName: string): 'google' | 'facebook' | 'twitter' | 'linkedin_oidc' | null => {
+    const providerMap: Record<string, 'google' | 'facebook' | 'twitter' | 'linkedin_oidc'> = {
+      'YouTube': 'google',
+      'Google': 'google',
+      'Facebook': 'facebook',
+      'Instagram': 'facebook', // Instagram uses Facebook login
+      'Twitter': 'twitter',
+      'Twitter/X': 'twitter',
+      'LinkedIn': 'linkedin_oidc',
+    };
+    
+    return providerMap[platformName] || null;
+  };
+
+  const supportsOAuth = !!getOAuthProvider(platformName);
+
   const handleSaveAPICredentials = async () => {
-    if (!apiKey) {
+    if (!apiKey && !supportsOAuth) {
       setError('API Key is required');
       return;
     }
@@ -44,7 +61,7 @@ const PlatformAPIConnection = ({
     setError('');
 
     try {
-      // Store API credentials in Supabase (in a real app, you would encrypt these)
+      // Store API credentials in Supabase
       const { error: supabaseError } = await supabase
         .from('platform_api_credentials')
         .upsert({
@@ -73,19 +90,43 @@ const PlatformAPIConnection = ({
     }
   };
 
+  const handleOAuthConnect = async () => {
+    setIsLoading(true);
+    
+    try {
+      const provider = getOAuthProvider(platformName);
+      if (!provider) {
+        throw new Error(`OAuth not supported for ${platformName}`);
+      }
+      
+      await signInWithProvider(provider);
+      // OAuth flow will redirect and then be handled on return
+    } catch (err: any) {
+      console.error("Error initiating OAuth flow:", err);
+      setError(err.message || `Failed to connect to ${platformName}`);
+      setIsLoading(false);
+    }
+  };
+
   const handleDisconnect = async () => {
     setIsLoading(true);
     
     try {
       // Remove API credentials from Supabase
       if (user) {
-        const { error: supabaseError } = await supabase
+        // Remove from connected_platforms table (OAuth connections)
+        await supabase
+          .from('connected_platforms')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('platform_name', platformName);
+          
+        // Remove from platform_api_credentials table (API key connections)
+        await supabase
           .from('platform_api_credentials')
           .delete()
           .eq('user_id', user.id)
           .eq('platform_name', platformName);
-
-        if (supabaseError) throw supabaseError;
       }
 
       await onDisconnect();
@@ -107,6 +148,10 @@ const PlatformAPIConnection = ({
   };
 
   const getConnectionInstructions = () => {
+    if (supportsOAuth) {
+      return `Connect your ${platformName} account with OAuth to post directly from the dashboard.`;
+    }
+    
     switch (platformName.toLowerCase()) {
       case 'youtube':
         return 'You need to create a project in Google Cloud Console and enable the YouTube Data API v3.';
@@ -142,20 +187,46 @@ const PlatformAPIConnection = ({
         </p>
         
         <div className="mt-auto">
-          <Button 
-            variant={isConnected ? "outline" : "default"}
-            className="w-full"
-            disabled={isLoading}
-            onClick={isConnected ? handleDisconnect : () => setIsDialogOpen(true)}
-          >
-            {isLoading ? (
-              <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-            ) : isConnected ? (
-              <>Disconnect</>
-            ) : (
-              <><LinkIcon className="mr-2 h-4 w-4" /> Connect API</>
-            )}
-          </Button>
+          {isConnected ? (
+            <Button 
+              variant="outline"
+              className="w-full"
+              disabled={isLoading}
+              onClick={handleDisconnect}
+            >
+              {isLoading ? (
+                <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <>Disconnect</>
+              )}
+            </Button>
+          ) : supportsOAuth ? (
+            <Button 
+              variant="default"
+              className="w-full"
+              disabled={isLoading}
+              onClick={handleOAuthConnect}
+            >
+              {isLoading ? (
+                <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <><LinkIcon className="mr-2 h-4 w-4" /> Connect with {platformName}</>
+              )}
+            </Button>
+          ) : (
+            <Button 
+              variant="default"
+              className="w-full"
+              disabled={isLoading}
+              onClick={() => setIsDialogOpen(true)}
+            >
+              {isLoading ? (
+                <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <><LinkIcon className="mr-2 h-4 w-4" /> Connect API</>
+              )}
+            </Button>
+          )}
         </div>
       </div>
 
