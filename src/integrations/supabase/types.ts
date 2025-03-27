@@ -48,6 +48,45 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_api_credentials: {
+        Row: {
+          access_token: string | null
+          additional_data: Json | null
+          api_key: string
+          api_secret: string | null
+          created_at: string | null
+          id: string
+          platform_name: string
+          refresh_token: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          access_token?: string | null
+          additional_data?: Json | null
+          api_key: string
+          api_secret?: string | null
+          created_at?: string | null
+          id?: string
+          platform_name: string
+          refresh_token?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          access_token?: string | null
+          additional_data?: Json | null
+          api_key?: string
+          api_secret?: string | null
+          created_at?: string | null
+          id?: string
+          platform_name?: string
+          refresh_token?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
