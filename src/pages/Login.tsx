@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -138,6 +139,10 @@ const Login = () => {
           </p>
           <p className="text-xs text-muted-foreground mt-2">
             By signing in, you agree to our{' '}
+            <Link to="/terms-of-service" className="text-primary hover:underline">
+              Terms of Service
+            </Link>
+            {' '}and{' '}
             <Link to="/privacy-policy" className="text-primary hover:underline">
               Privacy Policy
             </Link>

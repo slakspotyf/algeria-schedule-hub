@@ -75,7 +75,7 @@ export const usePlatformConnection = (
     // If we have a new OAuth session
     if (session?.provider_token && session?.provider_refresh_token) {
       // The provider information might be in user metadata or elsewhere
-      // Fixed: Removed incorrect access to non-existent provider property
+      // Get provider info from user metadata
       const providerInfo = session.user?.app_metadata?.provider || 'unknown';
       
       // Store the OAuth tokens
