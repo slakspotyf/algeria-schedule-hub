@@ -21,6 +21,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     }
   }, [isDemoMode, user]);
 
+  // Show loading state while checking authentication
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -29,10 +30,12 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     );
   }
 
+  // Redirect to login if user is not authenticated
   if (!user) {
     return <Navigate to="/login" replace />;
   }
 
+  // Render children or outlet for nested routes
   return children ? <>{children}</> : <Outlet />;
 };
 

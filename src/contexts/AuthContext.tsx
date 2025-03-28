@@ -26,17 +26,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const isDemoMode = isInDemoMode();
 
   useEffect(() => {
-    // Set up auth state listener FIRST
+    console.log('Setting up auth state listener');
+    
+    // Set up auth state listener FIRST (critical order)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log('Auth state changed:', event, session?.user?.id);
         setSession(session);
         setUser(session?.user ?? null);
-        setIsLoading(false);
         
-        // Handle OAuth tokens if they exist
+        // Handle OAuth tokens if they exist - using setTimeout to avoid Supabase auth deadlock
         if (event === 'SIGNED_IN' && session?.provider_token) {
-          // Use setTimeout to avoid Supabase auth deadlock
           setTimeout(async () => {
             const provider = session.user?.app_metadata?.provider || 'unknown';
             console.log('Saving OAuth connection for provider:', provider);
@@ -60,12 +60,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('Initial session check:', session?.user?.id);
       setSession(session);
       setUser(session?.user ?? null);
       setIsLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      console.log('Cleaning up auth subscription');
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signIn = async (email: string, password: string) => {

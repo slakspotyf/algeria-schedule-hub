@@ -13,8 +13,10 @@ if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KE
 // Create the Supabase client with proper auth configuration
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
+    persistSession: true,
     storage: localStorage,
     autoRefreshToken: true,
+    detectSessionInUrl: true,
   }
 });
 
