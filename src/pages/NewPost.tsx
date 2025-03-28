@@ -15,7 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useForm } from 'react-hook-form';
-import { Calendar, Clock, Image, ArrowLeft, Upload, Instagram, Youtube, Facebook, Linkedin, Twitter } from 'lucide-react';
+import { Calendar, Clock, Image, ArrowLeft, Upload, Instagram, Youtube, Facebook, Linkedin, Twitter, Repeat } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { Link } from 'react-router-dom';
 
@@ -24,6 +24,7 @@ type FormValues = {
   content: string;
   platforms: string[];
   schedule: boolean;
+  automate: boolean;
 };
 
 const NewPost = () => {
@@ -34,7 +35,8 @@ const NewPost = () => {
       title: '',
       content: '',
       platforms: ['instagram', 'youtube'],
-      schedule: false
+      schedule: false,
+      automate: true
     }
   });
 
@@ -43,8 +45,8 @@ const NewPost = () => {
     
     // In a real app, this would send the data to your Supabase backend
     toast({
-      title: "Post created",
-      description: "Your post has been successfully scheduled."
+      title: "Automation created",
+      description: data.schedule ? "Your content automation has been scheduled." : "Your content automation has been created."
     });
   };
 
@@ -64,7 +66,7 @@ const NewPost = () => {
       setIsUploading(false);
       toast({
         title: "Upload successful",
-        description: "Your image has been uploaded."
+        description: "Your image has been uploaded and will be used in your automated posts."
       });
     }, 1500);
   };
@@ -82,8 +84,8 @@ const NewPost = () => {
               <ArrowLeft className="h-4 w-4 mr-2" /> Back to Dashboard
             </Link>
             
-            <h1 className="text-3xl font-bold">Create New Post</h1>
-            <p className="text-muted-foreground mt-1">Schedule content across your platforms</p>
+            <h1 className="text-3xl font-bold">Create Social Automation</h1>
+            <p className="text-muted-foreground mt-1">Post your content across multiple platforms automatically</p>
           </div>
           
           <div className="glass-card p-6">
@@ -94,9 +96,9 @@ const NewPost = () => {
                   name="title"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Post Title</FormLabel>
+                      <FormLabel>Automation Title</FormLabel>
                       <FormControl>
-                        <Input placeholder="Add a title for your post" {...field} />
+                        <Input placeholder="Name your automation" {...field} />
                       </FormControl>
                       <FormDescription>
                         This is for your reference only
@@ -114,7 +116,7 @@ const NewPost = () => {
                       <FormLabel>Post Content</FormLabel>
                       <FormControl>
                         <Textarea 
-                          placeholder="What do you want to share?" 
+                          placeholder="What do you want to share across your social platforms?" 
                           className="min-h-32"
                           {...field} 
                         />
@@ -155,8 +157,32 @@ const NewPost = () => {
                   </div>
                 </div>
                 
+                <FormField
+                  control={form.control}
+                  name="automate"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 p-4 border border-border rounded-lg bg-primary/5">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel className="font-medium flex items-center">
+                          <Repeat className="h-4 w-4 mr-2" />
+                          Enable cross-platform posting
+                        </FormLabel>
+                        <FormDescription>
+                          Automatically adapt your content to each platform's requirements
+                        </FormDescription>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+                
                 <div>
-                  <h3 className="font-medium mb-3">Select Platforms</h3>
+                  <h3 className="font-medium mb-3">Select Target Platforms</h3>
                   <div className="flex flex-wrap gap-3">
                     {['instagram', 'youtube', 'facebook', 'twitter', 'linkedin'].map((platform) => (
                       <FormField
@@ -204,10 +230,10 @@ const NewPost = () => {
                       <div className="space-y-1 leading-none">
                         <FormLabel className="font-medium flex items-center">
                           <Calendar className="h-4 w-4 mr-2" />
-                          Schedule for later
+                          Schedule automated posting
                         </FormLabel>
                         <FormDescription>
-                          Post will be saved as a draft if unselected
+                          Your post will be automatically shared at the scheduled time
                         </FormDescription>
                       </div>
                     </FormItem>
@@ -217,7 +243,7 @@ const NewPost = () => {
                 {form.watch('schedule') && (
                   <div className="p-4 border border-border rounded-lg bg-muted/50 flex items-center">
                     <Clock className="h-5 w-5 text-muted-foreground mr-2" />
-                    <span className="text-sm text-muted-foreground">Scheduling options will appear in the premium plan</span>
+                    <span className="text-sm text-muted-foreground">Advanced scheduling options available in the premium plan</span>
                   </div>
                 )}
                 
@@ -226,7 +252,7 @@ const NewPost = () => {
                     Save as Draft
                   </Button>
                   <Button type="submit">
-                    {form.watch('schedule') ? 'Schedule Post' : 'Post Now'}
+                    {form.watch('schedule') ? 'Schedule Automation' : 'Start Automation'}
                   </Button>
                 </div>
               </form>

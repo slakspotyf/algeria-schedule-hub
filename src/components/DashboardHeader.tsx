@@ -18,6 +18,9 @@ const DashboardHeader = () => {
               <span className="font-display font-bold text-2xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                 Sahla-Post
               </span>
+              <span className="hidden sm:inline-block ml-2 text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">
+                Social Automation
+              </span>
             </Link>
           </div>
 
@@ -25,7 +28,7 @@ const DashboardHeader = () => {
           <nav className="hidden md:flex items-center space-x-6">
             <Button asChild variant="outline" size="sm" className="rounded-full">
               <Link to="/dashboard/new-post">
-                <Plus className="w-4 h-4 mr-2" /> New Post
+                <Plus className="w-4 h-4 mr-2" /> New Automation
               </Link>
             </Button>
             
@@ -86,7 +89,7 @@ const DashboardHeader = () => {
               onClick={() => setMobileMenuOpen(false)}
             >
               <Link to="/dashboard/new-post">
-                <Plus className="w-4 h-4 mr-2" /> New Post
+                <Plus className="w-4 h-4 mr-2" /> New Automation
               </Link>
             </Button>
             

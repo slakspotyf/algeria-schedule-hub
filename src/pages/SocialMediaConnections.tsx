@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import PlatformAPIConnection from '@/components/PlatformAPIConnection';
-import { RefreshCw, Plus } from 'lucide-react';
+import { RefreshCw, Plus, Zap } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 const platformsData = [
@@ -109,13 +109,28 @@ const SocialMediaConnections = () => {
             <div>
               <h1 className="text-3xl font-bold">Social Media Connections</h1>
               <p className="text-muted-foreground mt-1">
-                Connect your social media accounts to post directly from the dashboard
+                Connect your social media accounts to automate posting across platforms
               </p>
             </div>
             <Button variant="outline" size="sm" onClick={fetchConnectedPlatforms} disabled={isLoading}>
               {isLoading ? <RefreshCw className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
               <span className="ml-2">Refresh</span>
             </Button>
+          </div>
+
+          <div className="glass-card p-6 mb-8">
+            <div className="flex items-start gap-4">
+              <div className="p-3 bg-primary/10 rounded-full">
+                <Zap className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <h2 className="text-lg font-medium">Automate Your Social Media</h2>
+                <p className="text-muted-foreground mt-1">
+                  Connect your accounts below to enable cross-platform posting automation.
+                  Each connected platform can be used in your content automations.
+                </p>
+              </div>
+            </div>
           </div>
 
           {isLoading ? (
@@ -150,7 +165,7 @@ const SocialMediaConnections = () => {
                   <Plus className="h-8 w-8" />
                 </div>
                 <h3 className="text-lg font-medium text-center mb-2">Add Custom Platform</h3>
-                <p className="text-sm text-center mb-4">Connect to another platform</p>
+                <p className="text-sm text-center mb-4">Connect to another platform for automation</p>
                 <Button variant="outline" className="mt-auto">
                   <Plus className="h-4 w-4 mr-2" /> Add Platform
                 </Button>
