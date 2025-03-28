@@ -15,9 +15,13 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useForm } from 'react-hook-form';
-import { Calendar, Clock, Image, ArrowLeft, Upload, Instagram, Youtube, Facebook, Linkedin, Twitter, Repeat } from 'lucide-react';
+import { Calendar as CalendarIcon, Clock, Image, ArrowLeft, Upload, Instagram, Youtube, Facebook, Linkedin, Twitter, Repeat } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { Link } from 'react-router-dom';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { format, addDays, addHours, setHours, setMinutes } from 'date-fns';
+import { Slider } from '@/components/ui/slider';
 
 type FormValues = {
   title: string;
@@ -25,10 +29,14 @@ type FormValues = {
   platforms: string[];
   schedule: boolean;
   automate: boolean;
+  scheduledDate?: Date;
+  scheduledTime?: number[];
 };
 
 const NewPost = () => {
   const [isUploading, setIsUploading] = useState(false);
+  const [scheduledDate, setScheduledDate] = useState<Date | undefined>(addDays(new Date(), 1));
+  const [scheduledTime, setScheduledTime] = useState<number[]>([9]);
 
   const form = useForm<FormValues>({
     defaultValues: {
@@ -36,17 +44,35 @@ const NewPost = () => {
       content: '',
       platforms: ['instagram', 'youtube'],
       schedule: false,
-      automate: true
+      automate: true,
+      scheduledDate: undefined,
+      scheduledTime: [9]
     }
   });
 
   const onSubmit = (data: FormValues) => {
-    console.log('Form data:', data);
+    let scheduledDateTime: Date | undefined;
+    
+    if (data.schedule && scheduledDate) {
+      // Create a date object with the selected date and time
+      scheduledDateTime = new Date(scheduledDate);
+      scheduledDateTime = setHours(scheduledDateTime, scheduledTime[0]);
+      scheduledDateTime = setMinutes(scheduledDateTime, 0);
+      
+      console.log('Scheduling post for:', scheduledDateTime);
+    }
+    
+    console.log('Form data:', {
+      ...data,
+      scheduledDateTime
+    });
     
     // In a real app, this would send the data to your Supabase backend
     toast({
       title: "Automation created",
-      description: data.schedule ? "Your content automation has been scheduled." : "Your content automation has been created."
+      description: data.schedule 
+        ? `Your content will be automatically posted on ${format(scheduledDateTime!, 'PPP')} at ${scheduledTime[0]}:00`
+        : "Your content automation has been created."
     });
   };
 
@@ -229,7 +255,7 @@ const NewPost = () => {
                       </FormControl>
                       <div className="space-y-1 leading-none">
                         <FormLabel className="font-medium flex items-center">
-                          <Calendar className="h-4 w-4 mr-2" />
+                          <CalendarIcon className="h-4 w-4 mr-2" />
                           Schedule automated posting
                         </FormLabel>
                         <FormDescription>
@@ -241,9 +267,57 @@ const NewPost = () => {
                 />
                 
                 {form.watch('schedule') && (
-                  <div className="p-4 border border-border rounded-lg bg-muted/50 flex items-center">
-                    <Clock className="h-5 w-5 text-muted-foreground mr-2" />
-                    <span className="text-sm text-muted-foreground">Advanced scheduling options available in the premium plan</span>
+                  <div className="space-y-4">
+                    <div className="grid gap-2">
+                      <FormLabel>Schedule Date</FormLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className="justify-start text-left font-normal"
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {scheduledDate ? (
+                              format(scheduledDate, "PPP")
+                            ) : (
+                              <span>Pick a date</span>
+                            )}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0">
+                          <Calendar
+                            mode="single"
+                            selected={scheduledDate}
+                            onSelect={setScheduledDate}
+                            initialFocus
+                            disabled={(date) => date < new Date()}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                    
+                    <div className="grid gap-2">
+                      <div className="flex justify-between">
+                        <FormLabel>Schedule Time</FormLabel>
+                        <span className="text-sm text-muted-foreground">
+                          {scheduledTime[0]}:00
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4 text-muted-foreground" />
+                        <Slider
+                          value={scheduledTime}
+                          onValueChange={setScheduledTime}
+                          max={23}
+                          min={0}
+                          step={1}
+                          className="flex-1"
+                        />
+                      </div>
+                      <FormDescription>
+                        Posts are scheduled on the hour
+                      </FormDescription>
+                    </div>
                   </div>
                 )}
                 
