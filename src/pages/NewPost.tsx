@@ -1,4 +1,3 @@
-
 import { useState, useRef } from 'react';
 import DashboardHeader from '@/components/DashboardHeader';
 import { Button } from '@/components/ui/button';
@@ -17,7 +16,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useForm } from 'react-hook-form';
 import { Calendar as CalendarIcon, Clock, Image, ArrowLeft, Upload, Instagram, Youtube, Facebook, Linkedin, Twitter, Repeat, X } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { format, addDays, addHours, setHours, setMinutes } from 'date-fns';
@@ -40,7 +39,9 @@ type MediaFile = {
 };
 
 const NewPost = () => {
+  const navigate = useNavigate();
   const [isUploading, setIsUploading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [scheduledDate, setScheduledDate] = useState<Date | undefined>(addDays(new Date(), 1));
   const [scheduledTime, setScheduledTime] = useState<number[]>([9]);
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
@@ -60,35 +61,54 @@ const NewPost = () => {
     }
   });
 
-  const onSubmit = (data: FormValues) => {
-    let scheduledDateTime: Date | undefined;
+  const onSubmit = async (data: FormValues) => {
+    setIsSubmitting(true);
     
-    if (data.schedule && scheduledDate) {
-      // Create a date object with the selected date and time
-      scheduledDateTime = new Date(scheduledDate);
-      scheduledDateTime = setHours(scheduledDateTime, scheduledTime[0]);
-      scheduledDateTime = setMinutes(scheduledDateTime, 0);
+    try {
+      let scheduledDateTime: Date | undefined;
       
-      console.log('Scheduling post for:', scheduledDateTime);
+      if (data.schedule && scheduledDate) {
+        // Create a date object with the selected date and time
+        scheduledDateTime = new Date(scheduledDate);
+        scheduledDateTime = setHours(scheduledDateTime, scheduledTime[0]);
+        scheduledDateTime = setMinutes(scheduledDateTime, 0);
+        
+        console.log('Scheduling post for:', scheduledDateTime);
+      }
+      
+      console.log('Form data:', {
+        ...data,
+        scheduledDateTime,
+        mediaFiles: mediaFiles.map(m => ({
+          type: m.type,
+          name: m.file.name,
+          size: m.file.size
+        }))
+      });
+      
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // In a real app, this would send the data to your Supabase backend
+      toast({
+        title: data.schedule ? "Automation scheduled" : "Automation created",
+        description: data.schedule 
+          ? `Your content will be automatically posted on ${format(scheduledDateTime!, 'PPP')} at ${scheduledTime[0]}:00`
+          : "Your content automation has been created and will run shortly."
+      });
+      
+      // Navigate back to dashboard after successful submission
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Error creating automation:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create automation. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
     }
-    
-    console.log('Form data:', {
-      ...data,
-      scheduledDateTime,
-      mediaFiles: mediaFiles.map(m => ({
-        type: m.type,
-        name: m.file.name,
-        size: m.file.size
-      }))
-    });
-    
-    // In a real app, this would send the data to your Supabase backend
-    toast({
-      title: "Automation created",
-      description: data.schedule 
-        ? `Your content will be automatically posted on ${format(scheduledDateTime!, 'PPP')} at ${scheduledTime[0]}:00`
-        : "Your content automation has been created."
-    });
   };
 
   const platformIcons = {
@@ -427,8 +447,21 @@ const NewPost = () => {
                   <Button type="button" variant="outline">
                     Save as Draft
                   </Button>
-                  <Button type="submit">
-                    {form.watch('schedule') ? 'Schedule Automation' : 'Start Automation'}
+                  <Button 
+                    type="submit" 
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Processing...
+                      </>
+                    ) : (
+                      form.watch('schedule') ? 'Schedule Automation' : 'Start Automation'
+                    )}
                   </Button>
                 </div>
               </form>

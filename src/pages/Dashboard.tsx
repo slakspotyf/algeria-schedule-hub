@@ -7,12 +7,20 @@ import {
   BarChart, Calendar, Clock, PlusCircle, Rss, Sparkles 
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { toast } from '@/hooks/use-toast';
 
 const Dashboard = () => {
   const { user } = useAuth();
   
   // Get first part of email for greeting
   const username = user?.email?.split('@')[0] || 'there';
+
+  const handleUpgradeClick = () => {
+    toast({
+      title: "Upgrade Coming Soon",
+      description: "Premium plan upgrades will be available soon. Stay tuned!",
+    });
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -25,7 +33,10 @@ const Dashboard = () => {
               <h1 className="text-3xl font-bold">Welcome back, {username}!</h1>
               <p className="text-muted-foreground mt-1">Automate your social media posting across multiple platforms</p>
             </div>
-            <Button className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 gap-2">
+            <Button 
+              className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 gap-2"
+              onClick={handleUpgradeClick}
+            >
               <Sparkles className="h-4 w-4" />
               Upgrade Plan
             </Button>
