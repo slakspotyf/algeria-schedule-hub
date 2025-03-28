@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import SocialConnections from '@/components/social/SocialConnections';
 import { 
-  BarChart, Calendar, Clock, PlusCircle, Rss 
+  BarChart, Calendar, Clock, PlusCircle, Rss, Sparkles 
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -19,10 +19,16 @@ const Dashboard = () => {
       <DashboardHeader />
       <main className="flex-1 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Dashboard Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold">Welcome back, {username}!</h1>
-            <p className="text-muted-foreground mt-1">Automate your social media posting across multiple platforms</p>
+          {/* Dashboard Header with Upgrade Button */}
+          <div className="mb-8 flex justify-between items-start">
+            <div>
+              <h1 className="text-3xl font-bold">Welcome back, {username}!</h1>
+              <p className="text-muted-foreground mt-1">Automate your social media posting across multiple platforms</p>
+            </div>
+            <Button className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 gap-2">
+              <Sparkles className="h-4 w-4" />
+              Upgrade Plan
+            </Button>
           </div>
 
           {/* Stats Cards */}

@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import DashboardHeader from '@/components/DashboardHeader';
 import { Button } from '@/components/ui/button';
 import { 
@@ -15,7 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useForm } from 'react-hook-form';
-import { Calendar as CalendarIcon, Clock, Image, ArrowLeft, Upload, Instagram, Youtube, Facebook, Linkedin, Twitter, Repeat } from 'lucide-react';
+import { Calendar as CalendarIcon, Clock, Image, ArrowLeft, Upload, Instagram, Youtube, Facebook, Linkedin, Twitter, Repeat, X } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { Link } from 'react-router-dom';
 import { Calendar } from '@/components/ui/calendar';
@@ -33,10 +33,20 @@ type FormValues = {
   scheduledTime?: number[];
 };
 
+type MediaFile = {
+  type: 'image' | 'video';
+  file: File;
+  preview: string;
+};
+
 const NewPost = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [scheduledDate, setScheduledDate] = useState<Date | undefined>(addDays(new Date(), 1));
   const [scheduledTime, setScheduledTime] = useState<number[]>([9]);
+  const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
+  
+  const imageInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<FormValues>({
     defaultValues: {
@@ -64,7 +74,12 @@ const NewPost = () => {
     
     console.log('Form data:', {
       ...data,
-      scheduledDateTime
+      scheduledDateTime,
+      mediaFiles: mediaFiles.map(m => ({
+        type: m.type,
+        name: m.file.name,
+        size: m.file.size
+      }))
     });
     
     // In a real app, this would send the data to your Supabase backend
@@ -85,16 +100,50 @@ const NewPost = () => {
   };
 
   const handleImageUpload = () => {
+    if (imageInputRef.current) {
+      imageInputRef.current.click();
+    }
+  };
+  
+  const handleVideoUpload = () => {
+    if (videoInputRef.current) {
+      videoInputRef.current.click();
+    }
+  };
+  
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>, type: 'image' | 'video') => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+    
     setIsUploading(true);
+    
+    const file = files[0];
+    const preview = URL.createObjectURL(file);
     
     // Simulate upload delay
     setTimeout(() => {
+      setMediaFiles(prev => [...prev, { type, file, preview }]);
       setIsUploading(false);
+      
       toast({
         title: "Upload successful",
-        description: "Your image has been uploaded and will be used in your automated posts."
+        description: `Your ${type} has been uploaded and will be used in your automated posts.`
       });
+      
+      // Reset the file input
+      if (event.target) {
+        event.target.value = '';
+      }
     }, 1500);
+  };
+  
+  const removeMedia = (index: number) => {
+    setMediaFiles(prev => {
+      const updated = [...prev];
+      URL.revokeObjectURL(updated[index].preview); // Clean up the URL
+      updated.splice(index, 1);
+      return updated;
+    });
   };
 
   return (
@@ -154,6 +203,55 @@ const NewPost = () => {
                 
                 <div className="border border-border rounded-lg p-4">
                   <h3 className="font-medium mb-3">Add Media</h3>
+                  
+                  {/* Hidden file inputs */}
+                  <input 
+                    type="file" 
+                    ref={imageInputRef} 
+                    accept="image/*" 
+                    className="hidden"
+                    onChange={(e) => handleFileChange(e, 'image')}
+                  />
+                  <input 
+                    type="file" 
+                    ref={videoInputRef} 
+                    accept="video/*" 
+                    className="hidden"
+                    onChange={(e) => handleFileChange(e, 'video')}
+                  />
+                  
+                  {/* Display uploaded media previews */}
+                  {mediaFiles.length > 0 && (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
+                      {mediaFiles.map((media, index) => (
+                        <div key={index} className="relative group rounded-md overflow-hidden border border-border">
+                          {media.type === 'image' ? (
+                            <img 
+                              src={media.preview} 
+                              alt={`Upload ${index + 1}`} 
+                              className="w-full h-24 object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-24 flex items-center justify-center bg-muted">
+                              <video 
+                                src={media.preview} 
+                                className="w-full h-full object-cover"
+                              />
+                              <Upload className="absolute h-8 w-8 text-white" />
+                            </div>
+                          )}
+                          <button 
+                            type="button"
+                            onClick={() => removeMedia(index)}
+                            className="absolute top-1 right-1 bg-background/90 p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <X className="h-4 w-4 text-destructive" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  
                   <div className="grid grid-cols-2 gap-4">
                     <Button 
                       type="button" 
@@ -174,11 +272,15 @@ const NewPost = () => {
                       type="button" 
                       variant="outline" 
                       className="h-auto py-4 flex-col items-center justify-center gap-2 border-dashed"
+                      onClick={handleVideoUpload}
+                      disabled={isUploading}
                     >
                       <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
                         <Upload className="h-5 w-5" />
                       </div>
-                      <span className="text-sm">Upload Video</span>
+                      <span className="text-sm">
+                        {isUploading ? 'Uploading...' : 'Upload Video'}
+                      </span>
                     </Button>
                   </div>
                 </div>
