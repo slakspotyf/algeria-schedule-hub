@@ -4,9 +4,8 @@ import { Button } from '@/components/ui/button';
 import { usePlatformConnections } from '@/hooks/usePlatformConnections';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
-import { PlusCircle, AlertCircle, ArrowUpRight } from 'lucide-react';
+import { PlusCircle, AlertCircle } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
-import { Link } from 'react-router-dom';
 import PlatformIcon from './PlatformIcon';
 import { usePlatformConnection } from '@/hooks/usePlatformConnection';
 
@@ -26,19 +25,17 @@ const SocialConnections = () => {
     checkOAuthResponse();
   }, []);
 
-  // Get first 4 platforms for main display
-  const displayPlatforms = platforms.slice(0, 4);
-  const hasConnections = platforms.some(p => p.isConnected);
+  // Filter to only show YouTube, TikTok, Facebook, Instagram
+  const filteredPlatforms = platforms.filter(p => 
+    ['YouTube', 'TikTok', 'Facebook', 'Instagram'].includes(p.name)
+  );
+  
+  const hasConnections = filteredPlatforms.some(p => p.isConnected);
 
   return (
     <div className="mb-8">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-semibold">Connected Platforms</h2>
-        <Button variant="outline" size="sm" asChild>
-          <Link to="/dashboard/connections">
-            Manage API Connections <ArrowUpRight className="ml-1 h-3 w-3" />
-          </Link>
-        </Button>
       </div>
       
       <div className={cn(
@@ -54,7 +51,7 @@ const SocialConnections = () => {
         ) : (
           <>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {displayPlatforms.map((platform) => (
+              {filteredPlatforms.map((platform) => (
                 <PlatformIcon
                   key={platform.name}
                   name={platform.name}
@@ -76,16 +73,10 @@ const SocialConnections = () => {
               </div>
             )}
             
-            <div className="mt-6 flex justify-between">
+            <div className="mt-6 flex justify-center">
               <Button variant="outline" size="sm" className="text-muted-foreground group transition-all duration-300 hover:bg-primary/5">
                 <PlusCircle className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform duration-300" /> 
                 Connect More Platforms
-              </Button>
-              
-              <Button asChild size="sm" variant="default">
-                <Link to="/dashboard/connections">
-                  Advanced API Setup <ArrowUpRight className="ml-1 h-3 w-3" />
-                </Link>
               </Button>
             </div>
           </>

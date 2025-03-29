@@ -4,10 +4,11 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import SocialConnections from '@/components/social/SocialConnections';
 import { 
-  BarChart, Calendar, Clock, PlusCircle, Rss, Sparkles 
+  BarChart, Calendar, Sparkles, Rss, PlusCircle, Clock 
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
+import AIChatbot from '@/components/AIChatbot';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -117,6 +118,9 @@ const Dashboard = () => {
           </div>
         </div>
       </main>
+      
+      {/* AI Chatbot */}
+      <AIChatbot />
     </div>
   );
 };
