@@ -5,65 +5,65 @@
 
 @layer base {
   :root {
-    --background: 36 100% 98%;
-    --foreground: 20 14.3% 4.1%;
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
 
     --card: 0 0% 100%;
-    --card-foreground: 20 14.3% 4.1%;
+    --card-foreground: 222 47% 11%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 20 14.3% 4.1%;
+    --popover-foreground: 222 47% 11%;
 
-    --primary: 17 80% 45%;
-    --primary-foreground: 60 9.1% 97.8%;
+    --primary: 221 83% 53%;
+    --primary-foreground: 210 40% 98%;
 
-    --secondary: 36 30% 90%;
-    --secondary-foreground: 24 9.8% 10%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11%;
 
-    --muted: 60 4.8% 95.9%;
-    --muted-foreground: 25 5.3% 44.7%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
 
-    --accent: 142 72% 29%;
-    --accent-foreground: 60 9.1% 97.8%;
+    --accent: 142 71% 45%;
+    --accent-foreground: 210 40% 98%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 60 9.1% 97.8%;
+    --destructive-foreground: 210 40% 98%;
 
-    --border: 20 5.9% 90%;
-    --input: 20 5.9% 90%;
-    --ring: 17 80% 45%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 221 83% 53%;
 
     --radius: 0.75rem;
   }
 
   .dark {
-    --background: 20 14.3% 4.1%;
-    --foreground: 60 9.1% 97.8%;
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
 
-    --card: 20 14.3% 4.1%;
-    --card-foreground: 60 9.1% 97.8%;
+    --card: 222 47% 11%;
+    --card-foreground: 210 40% 98%;
 
-    --popover: 20 14.3% 4.1%;
-    --popover-foreground: 60 9.1% 97.8%;
+    --popover: 222 47% 11%;
+    --popover-foreground: 210 40% 98%;
 
-    --primary: 17 80% 45%;
-    --primary-foreground: 60 9.1% 97.8%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 210 40% 98%;
 
-    --secondary: 12 6.5% 15.1%;
-    --secondary-foreground: 60 9.1% 97.8%;
+    --secondary: 217 19% 27%;
+    --secondary-foreground: 210 40% 98%;
 
-    --muted: 12 6.5% 15.1%;
-    --muted-foreground: 24 5.4% 63.9%;
+    --muted: 217 19% 27%;
+    --muted-foreground: 215 20% 65%;
 
-    --accent: 142 72% 29%;
-    --accent-foreground: 60 9.1% 97.8%;
+    --accent: 142 71% 45%;
+    --accent-foreground: 210 40% 98%;
 
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 60 9.1% 97.8%;
+    --destructive-foreground: 210 40% 98%;
 
-    --border: 12 6.5% 15.1%;
-    --input: 12 6.5% 15.1%;
-    --ring: 17 80% 45%;
+    --border: 217 19% 27%;
+    --input: 217 19% 27%;
+    --ring: 224 76% 48%;
   }
 }
 
@@ -157,8 +157,8 @@
   }
   
   .algerian-pattern {
-    background-color: #f8f5f0;
-    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23e15634' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    background-color: #f8fafe;
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%233b82f6' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
   }
   
   .algerian-accent-border {
@@ -167,12 +167,12 @@
   
   .moroccan-tile {
     background-color: #ffffff;
-    background-image: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23e15634' fill-opacity='0.07'%3E%3Cpath d='M0 0h40v40H0V0zm40 40h40v40H40V40zm0-40h2l-2 2V0zm0 4l4-4h2l-6 6V4zm0 4l8-8h2L40 10V8zm0 4L52 0h2L40 14v-2zm0 4L56 0h2L40 18v-2zm0 4L60 0h2L40 22v-2zm0 4L64 0h2L40 26v-2zm0 4L68 0h2L40 30v-2zm0 4L72 0h2L40 34v-2zm0 4L76 0h2L40 38v-2zm0 4L80 0v2L42 40h-2zm4 0L80 4v2L46 40h-2zm4 0L80 8v2L50 40h-2zm4 0l28-28v2L54 40h-2zm4 0l24-24v2L58 40h-2zm4 0l20-20v2L62 40h-2zm4 0l16-16v2L66 40h-2zm4 0l12-12v2L70 40h-2zm4 0l8-8v2l-6 6h-2zm4 0l4-4v2l-2 2h-2z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%233b82f6' fill-opacity='0.07'%3E%3Cpath d='M0 0h40v40H0V0zm40 40h40v40H40V40zm0-40h2l-2 2V0zm0 4l4-4h2l-6 6V4zm0 4l8-8h2L40 10V8zm0 4L52 0h2L40 14v-2zm0 4L56 0h2L40 18v-2zm0 4L60 0h2L40 22v-2zm0 4L64 0h2L40 26v-2zm0 4L68 0h2L40 30v-2zm0 4L72 0h2L40 34v-2zm0 4L76 0h2L40 38v-2zm0 4L80 0v2L42 40h-2zm4 0L80 4v2L46 40h-2zm4 0L80 8v2L50 40h-2zm4 0l28-28v2L54 40h-2zm4 0l24-24v2L58 40h-2zm4 0l20-20v2L62 40h-2zm4 0l16-16v2L66 40h-2zm4 0l12-12v2L70 40h-2zm4 0l8-8v2l-6 6h-2zm4 0l4-4v2l-2 2h-2z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
   }
   
   .desert-pattern {
-    background-color: #fffbf6;
-    background-image: url("data:image/svg+xml,%3Csvg width='42' height='44' viewBox='0 0 42 44' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23e15634' fill-opacity='0.09'%3E%3Cpath d='M0 0h4v4H0V0zm6 6h4v4H6V6zm0-6h4v4H6V0zm6 0h4v4h-4V0zm6 6h4v4h-4V6zm0-6h4v4h-4V0zm6 0h4v4h-4V0zm6 6h4v4h-4V6zm0-6h4v4h-4V0zm6 0h4v4h-4V0zm0 6h4v4h-4V6zM0 6h4v4H0V6zm24 24h4v4h-4v-4zm-6 0h4v4h-4v-4zm6-6h4v4h-4v-4zm-6-6h4v4h-4v-4zm-6 12h4v4h-4v-4zm-6 0h4v4h-4v-4zm-6 0h4v4h-4v-4zm-6 0h4v4h-4v-4zM6 18h4v4H6v-4zm-6 0h4v4H0v-4zM6 6v4H0V6h6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    background-color: #f8faff;
+    background-image: url("data:image/svg+xml,%3Csvg width='42' height='44' viewBox='0 0 42 44' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%233b82f6' fill-opacity='0.09'%3E%3Cpath d='M0 0h4v4H0V0zm6 6h4v4H6V6zm0-6h4v4H6V0zm6 0h4v4h-4V0zm6 6h4v4h-4V6zm0-6h4v4h-4V0zm6 0h4v4h-4V0zm6 6h4v4h-4V6zm0-6h4v4h-4V0zm6 0h4v4h-4V0zm0 6h4v4h-4V6zM0 6h4v4H0V6zm24 24h4v4h-4v-4zm-6 0h4v4h-4v-4zm6-6h4v4h-4v-4zm-6-6h4v4h-4v-4zm-6 12h4v4h-4v-4zm-6 0h4v4h-4v-4zm-6 0h4v4h-4v-4zm-6 0h4v4h-4v-4zM6 18h4v4H6v-4zm-6 0h4v4H0v-4zM6 6v4H0V6h6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
   }
 }
 
