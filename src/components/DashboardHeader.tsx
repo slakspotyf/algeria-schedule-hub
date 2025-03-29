@@ -5,12 +5,14 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import LanguageSelector from './LanguageSelector';
-import { Menu, X, Plus, Bell, Settings, LogOut } from 'lucide-react';
+import { Menu, X, Plus, Bell, Settings, LogOut, CreditCard } from 'lucide-react';
+import { usePayment } from '@/contexts/PaymentContext';
 
 const DashboardHeader = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { signOut, user } = useAuth();
   const { t } = useLanguage();
+  const { subscription } = usePayment();
 
   return (
     <header className="sticky top-0 z-50 glass py-3 shadow-sm">
@@ -36,6 +38,18 @@ const DashboardHeader = () => {
               </Link>
             </Button>
             
+            <Button asChild variant="ghost" size="sm">
+              <Link to="/dashboard/payment" className="flex items-center">
+                <CreditCard className="w-4 h-4 mr-2" /> 
+                {subscription ? (
+                  subscription.plan_id === 'standard' ? 'Standard Plan' : 
+                  subscription.plan_id === 'premium' ? 'Premium Plan' : 'Free Plan'
+                ) : (
+                  'Upgrade'
+                )}
+              </Link>
+            </Button>
+            
             <Button variant="ghost" size="icon" className="relative">
               <Bell className="h-5 w-5" />
               <span className="absolute top-0 right-0 h-2 w-2 bg-destructive rounded-full"></span>
@@ -47,7 +61,14 @@ const DashboardHeader = () => {
               </div>
               <div className="hidden lg:block">
                 <p className="text-sm font-medium">{user?.email}</p>
-                <p className="text-xs text-muted-foreground">Free Plan</p>
+                <p className="text-xs text-muted-foreground">
+                  {subscription ? (
+                    subscription.plan_id === 'standard' ? 'Standard Plan' : 
+                    subscription.plan_id === 'premium' ? 'Premium Plan' : 'Free Plan'
+                  ) : (
+                    'Free Plan'
+                  )}
+                </p>
               </div>
             </div>
             
@@ -82,7 +103,14 @@ const DashboardHeader = () => {
                 </div>
                 <div>
                   <p className="text-sm font-medium">{user?.email}</p>
-                  <p className="text-xs text-muted-foreground">Free Plan</p>
+                  <p className="text-xs text-muted-foreground">
+                    {subscription ? (
+                      subscription.plan_id === 'standard' ? 'Standard Plan' : 
+                      subscription.plan_id === 'premium' ? 'Premium Plan' : 'Free Plan'
+                    ) : (
+                      'Free Plan'
+                    )}
+                  </p>
                 </div>
               </div>
             </div>
@@ -97,6 +125,14 @@ const DashboardHeader = () => {
                 <Plus className="w-4 h-4 mr-2" /> {t('dashboard_new_automation')}
               </Link>
             </Button>
+            
+            <Link 
+              to="/dashboard/payment" 
+              className="flex items-center py-2 hover:text-primary transition-colors"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <CreditCard className="h-4 w-4 mr-3" /> Subscription & Payments
+            </Link>
             
             <Link 
               to="/dashboard/settings" 

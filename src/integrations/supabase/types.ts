@@ -48,6 +48,51 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_methods: {
+        Row: {
+          billing_name: string | null
+          card_brand: string | null
+          card_last_four: string | null
+          created_at: string
+          expiry_month: number | null
+          expiry_year: number | null
+          id: string
+          is_default: boolean | null
+          payment_method_id: string
+          provider: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          billing_name?: string | null
+          card_brand?: string | null
+          card_last_four?: string | null
+          created_at?: string
+          expiry_month?: number | null
+          expiry_year?: number | null
+          id?: string
+          is_default?: boolean | null
+          payment_method_id: string
+          provider: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          billing_name?: string | null
+          card_brand?: string | null
+          card_last_four?: string | null
+          created_at?: string
+          expiry_month?: number | null
+          expiry_year?: number | null
+          id?: string
+          is_default?: boolean | null
+          payment_method_id?: string
+          provider?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       platform_api_credentials: {
         Row: {
           access_token: string | null
@@ -83,6 +128,42 @@ export type Database = {
           platform_name?: string
           refresh_token?: string | null
           updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          cancel_at_period_end: boolean | null
+          created_at: string
+          current_period_end: string | null
+          current_period_start: string | null
+          id: string
+          plan_id: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cancel_at_period_end?: boolean | null
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          plan_id: string
+          status: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cancel_at_period_end?: boolean | null
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          plan_id?: string
+          status?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []

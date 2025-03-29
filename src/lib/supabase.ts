@@ -84,3 +84,36 @@ export const saveOAuthConnection = async (provider: string, tokens: any) => {
     return false;
   }
 };
+
+// Helper function to get a user's subscription
+export const getUserSubscription = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('subscriptions')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .maybeSingle();
+    
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error('Error fetching subscription:', error);
+    return null;
+  }
+};
+
+// Helper function to get a user's payment methods
+export const getPaymentMethods = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('payment_methods')
+      .select('*')
+      .order('is_default', { ascending: false });
+    
+    if (error) throw error;
+    return data || [];
+  } catch (error) {
+    console.error('Error fetching payment methods:', error);
+    return [];
+  }
+};

@@ -1,6 +1,8 @@
 
 import { Check } from 'lucide-react';
 import { Button } from "@/components/ui/button";
+import { Link } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 
 const plans = [
   {
@@ -15,7 +17,8 @@ const plans = [
       "Email support"
     ],
     cta: "Get Started",
-    highlight: false
+    highlight: false,
+    id: "free"
   },
   {
     name: "Standard",
@@ -32,7 +35,8 @@ const plans = [
       "Team collaboration (1 seat)"
     ],
     cta: "Choose Standard",
-    highlight: true
+    highlight: true,
+    id: "standard"
   },
   {
     name: "Premium",
@@ -51,11 +55,14 @@ const plans = [
       "White-label reports"
     ],
     cta: "Choose Premium",
-    highlight: false
+    highlight: false,
+    id: "premium"
   }
 ];
 
 const Pricing = () => {
+  const { user } = useAuth();
+
   return (
     <section id="pricing" className="py-20 md:py-32 relative overflow-hidden">
       {/* Background decorative elements */}
@@ -75,7 +82,7 @@ const Pricing = () => {
           {plans.map((plan, index) => (
             <div
               key={plan.name}
-              className={`${plan.highlight ? 'pricing-card-highlight' : 'pricing-card'} animate-fade-in`}
+              className={`${plan.highlight ? 'pricing-card-highlight' : 'pricing-card'} animate-fade-in relative bg-card rounded-xl p-6 border shadow-sm hover:shadow-md transition-shadow ${plan.highlight ? 'border-primary' : 'border-border'}`}
               style={{ animationDelay: `${0.1 + index * 0.1}s` }}
             >
               {plan.highlight && (
@@ -110,8 +117,17 @@ const Pricing = () => {
               <Button 
                 className={`w-full rounded-full ${plan.highlight ? 'bg-accent text-accent-foreground hover:bg-accent/90' : ''}`}
                 variant={plan.highlight ? 'default' : 'outline'}
+                asChild
               >
-                {plan.cta}
+                {user ? (
+                  <Link to="/dashboard/payment">
+                    {plan.cta}
+                  </Link>
+                ) : (
+                  <Link to="/signup">
+                    {plan.cta}
+                  </Link>
+                )}
               </Button>
             </div>
           ))}
