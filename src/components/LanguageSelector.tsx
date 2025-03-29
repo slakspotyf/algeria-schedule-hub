@@ -23,18 +23,18 @@ const LanguageSelector = () => {
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm" className="gap-1">
+        <Button variant="ghost" size="sm" className="gap-1 text-primary hover:bg-primary/10 hover:text-primary">
           <Globe className="h-4 w-4 mr-1" />
           {localeNames[locale]}
           <ChevronDown className="h-3 w-3 opacity-50" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-40">
+      <DropdownMenuContent align="end" className="w-40 bg-background/95 backdrop-blur-sm border border-primary/20">
         {Object.entries(localeNames).map(([localeKey, localeName]) => (
           <DropdownMenuItem
             key={localeKey}
             onClick={() => handleSelectLanguage(localeKey as Locale)}
-            className={`flex items-center justify-between ${locale === localeKey ? 'bg-accent/50' : ''}`}
+            className={`flex items-center justify-between hover:bg-primary/10 hover:text-primary ${locale === localeKey ? 'bg-primary/20 text-primary' : ''}`}
           >
             {localeName}
             {locale === localeKey && <Check className="h-4 w-4" />}

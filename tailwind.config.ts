@@ -20,8 +20,8 @@ const config = {
     },
     extend: {
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
-        display: ['Plus Jakarta Sans', 'sans-serif'],
+        sans: ['Poppins', 'Inter', 'sans-serif'],
+        display: ['Montserrat', 'Plus Jakarta Sans', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",
