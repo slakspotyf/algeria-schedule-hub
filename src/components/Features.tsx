@@ -1,8 +1,16 @@
 
 import { CalendarDays, Repeat, BarChart3, Layers, Globe, Lock } from 'lucide-react';
 import { useLanguage } from "@/contexts/LanguageContext";
+import { TranslationKey } from "@/translations";
 
-const features = [
+// Type the feature object properly
+interface Feature {
+  icon: JSX.Element;
+  title: TranslationKey;
+  description: TranslationKey;
+}
+
+const features: Feature[] = [
   {
     icon: <CalendarDays className="h-10 w-10 text-primary" />,
     title: "features_scheduling_title",
