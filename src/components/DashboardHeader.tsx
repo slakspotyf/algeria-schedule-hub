@@ -3,11 +3,14 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
+import LanguageSelector from './LanguageSelector';
 import { Menu, X, Plus, Bell, Settings, LogOut } from 'lucide-react';
 
 const DashboardHeader = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { signOut, user } = useAuth();
+  const { t } = useLanguage();
 
   return (
     <header className="sticky top-0 z-50 glass py-3 shadow-sm">
@@ -16,19 +19,20 @@ const DashboardHeader = () => {
           <div className="flex items-center">
             <Link to="/dashboard" className="flex items-center">
               <span className="font-display font-bold text-2xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                Sahla-Post
+                {t('app_name')}
               </span>
               <span className="hidden sm:inline-block ml-2 text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">
-                Social Automation
+                {t('app_tagline')}
               </span>
             </Link>
           </div>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-6">
+            <LanguageSelector />
             <Button asChild variant="outline" size="sm" className="rounded-full">
               <Link to="/dashboard/new-post">
-                <Plus className="w-4 h-4 mr-2" /> New Automation
+                <Plus className="w-4 h-4 mr-2" /> {t('dashboard_new_automation')}
               </Link>
             </Button>
             
@@ -53,7 +57,8 @@ const DashboardHeader = () => {
           </nav>
 
           {/* Mobile Menu Button */}
-          <div className="md:hidden">
+          <div className="md:hidden flex items-center gap-2">
+            <LanguageSelector />
             <Button 
               variant="ghost" 
               size="icon" 
@@ -89,7 +94,7 @@ const DashboardHeader = () => {
               onClick={() => setMobileMenuOpen(false)}
             >
               <Link to="/dashboard/new-post">
-                <Plus className="w-4 h-4 mr-2" /> New Automation
+                <Plus className="w-4 h-4 mr-2" /> {t('dashboard_new_automation')}
               </Link>
             </Button>
             

@@ -3,8 +3,11 @@ import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Menu, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useLanguage } from '@/contexts/LanguageContext';
+import LanguageSelector from './LanguageSelector';
 
 const Header = () => {
+  const { t } = useLanguage();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -32,7 +35,7 @@ const Header = () => {
           <div className="flex items-center">
             <Link to="/" className="flex items-center">
               <span className="font-display font-bold text-2xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                Sahla-Post
+                {t('app_name')}
               </span>
             </Link>
           </div>
@@ -40,24 +43,26 @@ const Header = () => {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
             <a href="#features" className="text-foreground/80 hover:text-foreground transition-colors text-sm font-medium">
-              Features
+              {t('nav_features')}
             </a>
             <a href="#platforms" className="text-foreground/80 hover:text-foreground transition-colors text-sm font-medium">
-              Platforms
+              {t('nav_platforms')}
             </a>
             <a href="#pricing" className="text-foreground/80 hover:text-foreground transition-colors text-sm font-medium">
-              Pricing
+              {t('nav_pricing')}
             </a>
+            <LanguageSelector />
             <Button asChild variant="outline" className="rounded-full">
-              <Link to="/login">Log In</Link>
+              <Link to="/login">{t('nav_login')}</Link>
             </Button>
             <Button asChild className="rounded-full">
-              <Link to="/signup">Get Started</Link>
+              <Link to="/signup">{t('nav_signup')}</Link>
             </Button>
           </nav>
 
           {/* Mobile Menu Button */}
-          <div className="md:hidden">
+          <div className="md:hidden flex items-center gap-2">
+            <LanguageSelector />
             <Button 
               variant="ghost" 
               size="icon" 
@@ -79,28 +84,28 @@ const Header = () => {
               className="block text-foreground/80 hover:text-foreground transition-colors py-2 font-medium"
               onClick={() => setMobileMenuOpen(false)}
             >
-              Features
+              {t('nav_features')}
             </a>
             <a 
               href="#platforms" 
               className="block text-foreground/80 hover:text-foreground transition-colors py-2 font-medium"
               onClick={() => setMobileMenuOpen(false)}
             >
-              Platforms
+              {t('nav_platforms')}
             </a>
             <a 
               href="#pricing" 
               className="block text-foreground/80 hover:text-foreground transition-colors py-2 font-medium"
               onClick={() => setMobileMenuOpen(false)}
             >
-              Pricing
+              {t('nav_pricing')}
             </a>
             <div className="pt-2 flex flex-col space-y-3">
               <Button asChild variant="outline" className="w-full justify-center rounded-full">
-                <Link to="/login" onClick={() => setMobileMenuOpen(false)}>Log In</Link>
+                <Link to="/login" onClick={() => setMobileMenuOpen(false)}>{t('nav_login')}</Link>
               </Button>
               <Button asChild className="w-full justify-center rounded-full">
-                <Link to="/signup" onClick={() => setMobileMenuOpen(false)}>Get Started</Link>
+                <Link to="/signup" onClick={() => setMobileMenuOpen(false)}>{t('nav_signup')}</Link>
               </Button>
             </div>
           </div>

@@ -1,8 +1,11 @@
 
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const Hero = () => {
+  const { t } = useLanguage();
+  
   return (
     <section className="pt-20 pb-16 md:pt-32 md:pb-24 overflow-hidden relative">
       {/* Background decorative elements */}
@@ -14,14 +17,14 @@ const Hero = () => {
           {/* Hero content */}
           <div className="w-full lg:w-1/2 text-center lg:text-left">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight animate-fade-in">
-              Automate Your Social Media Presence in Algeria
+              {t('hero_title')}
             </h1>
             <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto lg:mx-0 animate-fade-in" style={{ animationDelay: "0.1s" }}>
-              Schedule, post, and analyze your content across multiple platforms with one intuitive dashboard. Save time and grow your audience effortlessly.
+              {t('hero_description')}
             </p>
             <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start animate-fade-in" style={{ animationDelay: "0.2s" }}>
               <Button asChild size="lg" className="rounded-full text-base px-8">
-                <Link to="/signup">Get Started Free</Link>
+                <Link to="/signup">{t('hero_cta')}</Link>
               </Button>
               <Button 
                 asChild 
@@ -33,11 +36,11 @@ const Hero = () => {
                   alert("Demo video would play here!");
                 }}
               >
-                <Link to="#demo">Watch Demo</Link>
+                <Link to="#demo">{t('hero_watch_demo')}</Link>
               </Button>
             </div>
             <p className="mt-6 text-sm text-muted-foreground animate-fade-in" style={{ animationDelay: "0.3s" }}>
-              No credit card required. 10 free posts per month.
+              {t('hero_free_plan')}
             </p>
           </div>
           
@@ -66,7 +69,7 @@ const Hero = () => {
         
         {/* Trust badges */}
         <div className="mt-16 md:mt-24 py-8 border-t border-border">
-          <p className="text-center text-sm text-muted-foreground mb-6">Trusted by businesses across Algeria</p>
+          <p className="text-center text-sm text-muted-foreground mb-6">{t('hero_trusted')}</p>
           <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12 opacity-70">
             <div className="w-24 h-6 bg-foreground/80 rounded"></div>
             <div className="w-24 h-6 bg-foreground/80 rounded"></div>
