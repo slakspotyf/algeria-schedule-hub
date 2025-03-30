@@ -1,4 +1,3 @@
-
 import DashboardHeader from '@/components/DashboardHeader';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
@@ -6,21 +5,19 @@ import SocialConnections from '@/components/social/SocialConnections';
 import { 
   BarChart, Calendar, Sparkles, Rss, PlusCircle, Clock 
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 import AIChatbot from '@/components/AIChatbot';
 
 const Dashboard = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   
   // Get first part of email for greeting
   const username = user?.email?.split('@')[0] || 'there';
 
   const handleUpgradeClick = () => {
-    toast({
-      title: "Upgrade Coming Soon",
-      description: "Premium plan upgrades will be available soon. Stay tuned!",
-    });
+    navigate('/dashboard/payment');
   };
 
   return (
