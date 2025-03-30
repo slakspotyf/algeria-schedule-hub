@@ -37,7 +37,25 @@ serve(async (req) => {
       throw new Error('Telegram API key not set')
     }
 
+    // Store the pending payment request in the database
+    const { data, error } = await supabase
+      .from('payment_verifications')
+      .insert({
+        user_email: userEmail,
+        binance_email: email,
+        plan_id: planId,
+        transaction_id: transactionId,
+        amount: amount,
+        status: 'pending'
+      })
+      .select('id')
+      .single()
+    
+    if (error) throw error
+
     // Format message for Telegram
+    const verificationUrl = `${req.headers.get('origin') || 'https://localhost:3000'}/admin/verify?id=${data.id}`
+    
     const message = `
 🔔 *New Payment Verification Request*
 
@@ -47,7 +65,7 @@ serve(async (req) => {
 *Transaction ID:* ${transactionId}
 *Amount:* ${amount}
 
-To approve or reject this payment, please use the admin dashboard.
+[Approve or Reject](${verificationUrl})
 `
 
     // Send notification to Telegram
@@ -70,23 +88,13 @@ To approve or reject this payment, please use the admin dashboard.
       const errorData = await telegramResponse.json()
       throw new Error(`Telegram API error: ${JSON.stringify(errorData)}`)
     }
-    
-    // Store the pending payment request in the database
-    const { error } = await supabase
-      .from('payment_verifications')
-      .insert({
-        user_email: userEmail,
-        binance_email: email,
-        plan_id: planId,
-        transaction_id: transactionId,
-        amount: amount,
-        status: 'pending'
-      })
-    
-    if (error) throw error
 
     return new Response(
-      JSON.stringify({ success: true, message: 'Payment verification request submitted' }),
+      JSON.stringify({ 
+        success: true, 
+        message: 'Payment verification request submitted',
+        verificationId: data.id
+      }),
       {
         headers: { 'Content-Type': 'application/json', ...corsHeaders },
         status: 200,

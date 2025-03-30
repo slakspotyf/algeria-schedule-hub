@@ -1,14 +1,15 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useForm } from 'react-hook-form';
-import { Loader2, Copy, CheckCircle } from 'lucide-react';
+import { Loader2, Copy, CheckCircle, Clock, Ban, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { Badge } from '@/components/ui/badge';
 
 interface BinancePaymentProps {
   planId: string;
@@ -20,10 +21,18 @@ interface PaymentFormData {
   amount: string;
 }
 
+interface PaymentVerification {
+  id: string;
+  status: 'pending' | 'approved' | 'rejected';
+  created_at: string;
+}
+
 const BinancePayment = ({ planId }: BinancePaymentProps) => {
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
+  const [verifications, setVerifications] = useState<PaymentVerification[]>([]);
+  const [loading, setLoading] = useState(true);
   
   const { register, handleSubmit, formState: { errors } } = useForm<PaymentFormData>({
     defaultValues: {
@@ -35,6 +44,31 @@ const BinancePayment = ({ planId }: BinancePaymentProps) => {
 
   const binanceEmail = 'hassad.med.achraf@gmail.com';
   const binanceId = '384371330';
+
+  useEffect(() => {
+    // Fetch user's payment verifications
+    const fetchVerifications = async () => {
+      if (!user?.email) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from('payment_verifications')
+          .select('*')
+          .eq('user_email', user.email)
+          .order('created_at', { ascending: false });
+          
+        if (error) throw error;
+        
+        setVerifications(data || []);
+      } catch (err) {
+        console.error('Error fetching payment verifications:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchVerifications();
+  }, [user]);
 
   const copyToClipboard = (text: string, field: string) => {
     navigator.clipboard.writeText(text);
@@ -67,6 +101,15 @@ const BinancePayment = ({ planId }: BinancePaymentProps) => {
 
       if (error) throw error;
 
+      // Add the new verification to the list
+      if (responseData.verificationId) {
+        setVerifications(prev => [{
+          id: responseData.verificationId,
+          status: 'pending',
+          created_at: new Date().toISOString()
+        }, ...prev]);
+      }
+
       toast({
         title: "Payment verification submitted",
         description: "We've received your payment details and will verify it soon.",
@@ -83,6 +126,32 @@ const BinancePayment = ({ planId }: BinancePaymentProps) => {
     }
   };
 
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return <Clock className="h-4 w-4 text-yellow-500" />;
+      case 'approved':
+        return <CheckCircle className="h-4 w-4 text-green-500" />;
+      case 'rejected':
+        return <Ban className="h-4 w-4 text-red-500" />;
+      default:
+        return <AlertCircle className="h-4 w-4 text-gray-500" />;
+    }
+  };
+  
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400";
+      case 'approved':
+        return "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400";
+      case 'rejected':
+        return "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400";
+      default:
+        return "";
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -92,6 +161,30 @@ const BinancePayment = ({ planId }: BinancePaymentProps) => {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
+        {verifications.length > 0 && (
+          <div className="mb-6 border rounded-md p-4">
+            <h3 className="text-sm font-medium mb-2">Your Payment Verifications</h3>
+            <div className="space-y-2">
+              {verifications.map((v) => (
+                <div 
+                  key={v.id} 
+                  className="flex items-center justify-between text-sm p-2 rounded-md border bg-muted/50"
+                >
+                  <div className="flex items-center">
+                    {getStatusIcon(v.status)}
+                    <span className="ml-2">
+                      {new Date(v.created_at).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <Badge variant="outline" className={getStatusColor(v.status)}>
+                    {v.status.charAt(0).toUpperCase() + v.status.slice(1)}
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="space-y-4">
           <div className="bg-muted p-4 rounded-md">
             <div className="flex justify-between items-center mb-2">

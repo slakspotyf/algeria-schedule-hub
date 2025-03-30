@@ -93,6 +93,42 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_verifications: {
+        Row: {
+          amount: string
+          binance_email: string
+          created_at: string
+          id: string
+          plan_id: string
+          status: string
+          transaction_id: string
+          updated_at: string
+          user_email: string
+        }
+        Insert: {
+          amount: string
+          binance_email: string
+          created_at?: string
+          id?: string
+          plan_id: string
+          status?: string
+          transaction_id: string
+          updated_at?: string
+          user_email: string
+        }
+        Update: {
+          amount?: string
+          binance_email?: string
+          created_at?: string
+          id?: string
+          plan_id?: string
+          status?: string
+          transaction_id?: string
+          updated_at?: string
+          user_email?: string
+        }
+        Relationships: []
+      }
       platform_api_credentials: {
         Row: {
           access_token: string | null

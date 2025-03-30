@@ -19,6 +19,7 @@ import Payment from "./pages/Payment";
 import NotFound from "./pages/NotFound";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
+import AdminVerify from "./pages/AdminVerify";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +45,7 @@ const App = () => {
                   <Route path="/signup" element={<Signup />} />
                   <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                   <Route path="/terms-of-service" element={<TermsOfService />} />
+                  <Route path="/admin/verify" element={<AdminVerify />} />
                   
                   {/* Protected routes */}
                   <Route element={<ProtectedRoute />}>
