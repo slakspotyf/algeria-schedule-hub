@@ -15,11 +15,12 @@ serve(async (req) => {
 
   try {
     const { verificationId, action } = await req.json()
+    console.log('Verification request received:', { verificationId, action })
     
-    // Create Supabase client
+    // Create Supabase client with admin privileges to bypass RLS
     const supabaseUrl = Deno.env.get('SUPABASE_URL') || ''
-    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') || ''
-    const supabase = createClient(supabaseUrl, supabaseAnonKey)
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''
+    const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
     // Get verification from database
     const { data: verification, error: fetchError } = await supabase
@@ -29,8 +30,11 @@ serve(async (req) => {
       .single()
     
     if (fetchError || !verification) {
+      console.error('Verification not found:', fetchError)
       throw new Error('Verification not found')
     }
+
+    console.log('Verification found:', verification)
 
     // Update verification status
     const status = action === 'approve' ? 'approved' : 'rejected'
@@ -40,57 +44,54 @@ serve(async (req) => {
       .eq('id', verificationId)
 
     if (updateError) {
+      console.error('Failed to update verification:', updateError)
       throw new Error(`Failed to update verification: ${updateError.message}`)
     }
+
+    console.log(`Verification status updated to: ${status}`)
 
     // If approved, create a subscription for the user
     if (action === 'approve') {
       // First get the user id from their email
-      const { data: userData, error: userError } = await supabase
-        .from('users')
-        .select('id')
-        .eq('email', verification.user_email)
-        .single()
+      const { data: userData, error: userError } = await supabase.auth
+        .admin
+        .getUserByEmail(verification.user_email)
 
-      if (userError) {
+      if (userError || !userData?.user) {
         console.error('Error fetching user:', userError)
-        
-        // Try to get user from auth schema instead
-        const { data: authUser, error: authUserError } = await supabase.auth.admin.getUserByEmail(
-          verification.user_email
-        )
-        
-        if (authUserError || !authUser?.user) {
-          throw new Error(`User not found: ${verification.user_email}`)
-        }
-        
-        // Calculate subscription period (30 days)
-        const currentDate = new Date()
-        const expiryDate = new Date(currentDate)
-        expiryDate.setDate(currentDate.getDate() + 30)
-        
-        // Create subscription
-        const { error: subError } = await supabase
-          .from('subscriptions')
-          .insert({
-            user_id: authUser.user.id,
-            plan_id: verification.plan_id,
-            status: 'active',
-            current_period_start: currentDate.toISOString(),
-            current_period_end: expiryDate.toISOString(),
-            cancel_at_period_end: false
-          })
+        throw new Error(`User not found: ${verification.user_email}`)
+      }
+      
+      // Calculate subscription period (30 days)
+      const currentDate = new Date()
+      const expiryDate = new Date(currentDate)
+      expiryDate.setDate(currentDate.getDate() + 30)
+      
+      // Create subscription
+      const { error: subError } = await supabase
+        .from('subscriptions')
+        .insert({
+          user_id: userData.user.id,
+          plan_id: verification.plan_id,
+          status: 'active',
+          current_period_start: currentDate.toISOString(),
+          current_period_end: expiryDate.toISOString(),
+          cancel_at_period_end: false
+        })
 
-        if (subError) {
-          throw new Error(`Failed to create subscription: ${subError.message}`)
-        }
-        
-        // Send notification via Telegram to confirm subscription activation
-        const telegramApiKey = Deno.env.get('TELEGRAM_API_KEY')
-        const chatId = '1349542277' // Same as notify function
-        
-        if (telegramApiKey) {
-          const message = `
+      if (subError) {
+        console.error('Failed to create subscription:', subError)
+        throw new Error(`Failed to create subscription: ${subError.message}`)
+      }
+      
+      console.log('Subscription created successfully')
+      
+      // Send notification via Telegram to confirm subscription activation
+      const telegramApiKey = Deno.env.get('TELEGRAM_API_KEY')
+      const chatId = '1349542277' // Same as notify function
+      
+      if (telegramApiKey) {
+        const message = `
 ✅ *Subscription Activated*
 
 *User:* ${verification.user_email}
@@ -100,20 +101,25 @@ serve(async (req) => {
 Payment verification #${verification.id} has been approved and subscription activated.
 `
 
-          await fetch(
-            `https://api.telegram.org/bot${telegramApiKey}/sendMessage`,
-            {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                chat_id: chatId,
-                text: message,
-                parse_mode: 'Markdown',
-              }),
-            }
-          )
+        const telegramResponse = await fetch(
+          `https://api.telegram.org/bot${telegramApiKey}/sendMessage`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              chat_id: chatId,
+              text: message,
+              parse_mode: 'Markdown',
+            }),
+          }
+        )
+        
+        if (!telegramResponse.ok) {
+          console.error('Telegram notification failed')
+        } else {
+          console.log('Telegram notification sent successfully')
         }
       }
     }

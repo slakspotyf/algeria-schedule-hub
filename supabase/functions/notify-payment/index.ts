@@ -24,10 +24,12 @@ serve(async (req) => {
   try {
     const { email, userEmail, planId, transactionId, amount }: PaymentVerificationRequest = await req.json()
     
-    // Create Supabase client
+    console.log('Payment verification request received:', { email, userEmail, planId, transactionId, amount })
+    
+    // Create Supabase client with admin privileges to bypass RLS
     const supabaseUrl = Deno.env.get('SUPABASE_URL') || ''
-    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') || ''
-    const supabase = createClient(supabaseUrl, supabaseAnonKey)
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''
+    const supabase = createClient(supabaseUrl, supabaseServiceKey)
     
     // Get Telegram API key from environment variables
     const telegramApiKey = Deno.env.get('TELEGRAM_API_KEY')
@@ -51,7 +53,12 @@ serve(async (req) => {
       .select('id')
       .single()
     
-    if (error) throw error
+    if (error) {
+      console.error('Error inserting payment verification:', error)
+      throw error
+    }
+
+    console.log('Payment verification inserted with ID:', data.id)
 
     // Format message for Telegram
     const verificationUrl = `${req.headers.get('origin') || 'https://localhost:3000'}/admin/verify?id=${data.id}`
@@ -86,8 +93,11 @@ serve(async (req) => {
 
     if (!telegramResponse.ok) {
       const errorData = await telegramResponse.json()
+      console.error('Telegram API error:', errorData)
       throw new Error(`Telegram API error: ${JSON.stringify(errorData)}`)
     }
+
+    console.log('Telegram notification sent successfully')
 
     return new Response(
       JSON.stringify({ 
