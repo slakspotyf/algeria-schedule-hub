@@ -59,7 +59,14 @@ const BinancePayment = ({ planId }: BinancePaymentProps) => {
           
         if (error) throw error;
         
-        setVerifications(data || []);
+        // Transform the data to match the expected PaymentVerification type
+        const typedVerifications: PaymentVerification[] = data?.map(item => ({
+          id: item.id,
+          status: item.status as 'pending' | 'approved' | 'rejected',
+          created_at: item.created_at
+        })) || [];
+        
+        setVerifications(typedVerifications);
       } catch (err) {
         console.error('Error fetching payment verifications:', err);
       } finally {
@@ -101,7 +108,7 @@ const BinancePayment = ({ planId }: BinancePaymentProps) => {
 
       if (error) throw error;
 
-      // Add the new verification to the list
+      // Add the new verification to the list with proper typing
       if (responseData.verificationId) {
         setVerifications(prev => [{
           id: responseData.verificationId,

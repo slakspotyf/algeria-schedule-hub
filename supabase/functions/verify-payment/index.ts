@@ -52,76 +52,32 @@ serve(async (req) => {
 
     // If approved, create a subscription for the user
     if (action === 'approve') {
-      // First get the user id from their email
-      const { data: userData, error: userError } = await supabase.auth
-        .admin
-        .getUserByEmail(verification.user_email)
+      // First get user by email - using a query instead of admin.getUserByEmail
+      const { data: userData, error: userError } = await supabase
+        .from('auth.users')
+        .select('id')
+        .eq('email', verification.user_email)
+        .single()
 
-      if (userError || !userData?.user) {
-        console.error('Error fetching user:', userError)
-        throw new Error(`User not found: ${verification.user_email}`)
+      if (userError || !userData) {
+        // Fallback to try using from auth directly
+        const { data: authData, error: authError } = await supabase
+          .rpc('get_user_id_by_email', { user_email: verification.user_email })
+        
+        if (authError || !authData) {
+          console.error('Error fetching user:', userError || authError)
+          throw new Error(`User not found: ${verification.user_email}`)
+        }
+        
+        // Create subscription with the user ID we got
+        await createSubscription(supabase, authData, verification)
+      } else {
+        // Create subscription with the user ID we got
+        await createSubscription(supabase, userData.id, verification)
       }
-      
-      // Calculate subscription period (30 days)
-      const currentDate = new Date()
-      const expiryDate = new Date(currentDate)
-      expiryDate.setDate(currentDate.getDate() + 30)
-      
-      // Create subscription
-      const { error: subError } = await supabase
-        .from('subscriptions')
-        .insert({
-          user_id: userData.user.id,
-          plan_id: verification.plan_id,
-          status: 'active',
-          current_period_start: currentDate.toISOString(),
-          current_period_end: expiryDate.toISOString(),
-          cancel_at_period_end: false
-        })
-
-      if (subError) {
-        console.error('Failed to create subscription:', subError)
-        throw new Error(`Failed to create subscription: ${subError.message}`)
-      }
-      
-      console.log('Subscription created successfully')
       
       // Send notification via Telegram to confirm subscription activation
-      const telegramApiKey = Deno.env.get('TELEGRAM_API_KEY')
-      const chatId = '1349542277' // Same as notify function
-      
-      if (telegramApiKey) {
-        const message = `
-✅ *Subscription Activated*
-
-*User:* ${verification.user_email}
-*Plan:* ${verification.plan_id === 'standard' ? 'Standard ($9.99)' : 'Premium ($19.99)'}
-*Valid until:* ${expiryDate.toISOString().split('T')[0]}
-
-Payment verification #${verification.id} has been approved and subscription activated.
-`
-
-        const telegramResponse = await fetch(
-          `https://api.telegram.org/bot${telegramApiKey}/sendMessage`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              chat_id: chatId,
-              text: message,
-              parse_mode: 'Markdown',
-            }),
-          }
-        )
-        
-        if (!telegramResponse.ok) {
-          console.error('Telegram notification failed')
-        } else {
-          console.log('Telegram notification sent successfully')
-        }
-      }
+      await sendTelegramNotification(verification)
     }
 
     return new Response(
@@ -146,3 +102,81 @@ Payment verification #${verification.id} has been approved and subscription acti
     )
   }
 })
+
+// Helper function to create subscription
+async function createSubscription(supabase, userId, verification) {
+  console.log('Creating subscription for user:', userId)
+  
+  // Calculate subscription period (30 days)
+  const currentDate = new Date()
+  const expiryDate = new Date(currentDate)
+  expiryDate.setDate(currentDate.getDate() + 30)
+  
+  // Create subscription
+  const { error: subError } = await supabase
+    .from('subscriptions')
+    .insert({
+      user_id: userId,
+      plan_id: verification.plan_id,
+      status: 'active',
+      current_period_start: currentDate.toISOString(),
+      current_period_end: expiryDate.toISOString(),
+      cancel_at_period_end: false
+    })
+
+  if (subError) {
+    console.error('Failed to create subscription:', subError)
+    throw new Error(`Failed to create subscription: ${subError.message}`)
+  }
+  
+  console.log('Subscription created successfully')
+}
+
+// Helper function to send Telegram notification
+async function sendTelegramNotification(verification) {
+  const telegramApiKey = Deno.env.get('TELEGRAM_API_KEY')
+  const chatId = '1349542277' // Same as notify function
+  
+  if (!telegramApiKey) {
+    console.error('Telegram API key not set')
+    return
+  }
+  
+  const expiryDate = new Date()
+  expiryDate.setDate(expiryDate.getDate() + 30)
+  
+  const message = `
+✅ *Subscription Activated*
+
+*User:* ${verification.user_email}
+*Plan:* ${verification.plan_id === 'standard' ? 'Standard ($9.99)' : 'Premium ($19.99)'}
+*Valid until:* ${expiryDate.toISOString().split('T')[0]}
+
+Payment verification #${verification.id} has been approved and subscription activated.
+`
+
+  try {
+    const telegramResponse = await fetch(
+      `https://api.telegram.org/bot${telegramApiKey}/sendMessage`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text: message,
+          parse_mode: 'Markdown',
+        }),
+      }
+    )
+    
+    if (!telegramResponse.ok) {
+      console.error('Telegram notification failed')
+    } else {
+      console.log('Telegram notification sent successfully')
+    }
+  } catch (error) {
+    console.error('Error sending Telegram notification:', error)
+  }
+}
