@@ -1,0 +1,4 @@
+
+project_id = "qgctizhfwngianypbztg"
+name = "verify-payment"
+entrypoint = "index.ts"
