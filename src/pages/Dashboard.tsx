@@ -1,123 +1,81 @@
+
+import { useEffect } from 'react';
 import DashboardHeader from '@/components/DashboardHeader';
-import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
+import { usePayment } from '@/contexts/PaymentContext';
 import SocialConnections from '@/components/social/SocialConnections';
-import { 
-  BarChart, Calendar, Sparkles, Rss, PlusCircle, Clock 
-} from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
-import { toast } from '@/hooks/use-toast';
-import AIChatbot from '@/components/AIChatbot';
+import N8nIntegration from '@/components/N8nIntegration';
 
 const Dashboard = () => {
-  const { user } = useAuth();
-  const navigate = useNavigate();
-  
-  // Get first part of email for greeting
-  const username = user?.email?.split('@')[0] || 'there';
+  const { user, isLoading: authLoading } = useAuth();
+  const { subscription, isLoading: subscriptionLoading } = usePayment();
 
-  const handleUpgradeClick = () => {
-    navigate('/dashboard/payment');
-  };
+  useEffect(() => {
+    // Update document title
+    document.title = "Dashboard | Sahla-Post";
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <DashboardHeader />
       <main className="flex-1 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Dashboard Header with Upgrade Button */}
-          <div className="mb-8 flex justify-between items-start">
+          <div className="flex flex-col md:flex-row items-start justify-between mb-8">
             <div>
-              <h1 className="text-3xl font-bold">Welcome back, {username}!</h1>
-              <p className="text-muted-foreground mt-1">Automate your social media posting across multiple platforms</p>
-            </div>
-            <Button 
-              className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 gap-2"
-              onClick={handleUpgradeClick}
-            >
-              <Sparkles className="h-4 w-4" />
-              Upgrade Plan
-            </Button>
-          </div>
-
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div className="glass-card p-6 transition duration-300 hover:shadow-md hover:bg-background/80">
-              <div className="flex justify-between items-start">
-                <div>
-                  <p className="text-muted-foreground text-sm font-medium">Automated Posts</p>
-                  <h3 className="text-3xl font-bold mt-1">0</h3>
-                </div>
-                <div className="p-2 bg-primary/10 rounded-full">
-                  <BarChart className="h-6 w-6 text-primary" />
-                </div>
-              </div>
-              <div className="mt-4 pt-4 border-t border-border">
-                <p className="text-sm text-muted-foreground">
-                  <span className="font-medium">10</span> posts remaining on free plan
-                </p>
-              </div>
-            </div>
-            
-            <div className="glass-card p-6 transition duration-300 hover:shadow-md hover:bg-background/80">
-              <div className="flex justify-between items-start">
-                <div>
-                  <p className="text-muted-foreground text-sm font-medium">Scheduled Automations</p>
-                  <h3 className="text-3xl font-bold mt-1">0</h3>
-                </div>
-                <div className="p-2 bg-accent/10 rounded-full">
-                  <Calendar className="h-6 w-6 text-accent" />
-                </div>
-              </div>
-              <div className="mt-4 pt-4 border-t border-border">
-                <p className="text-sm text-muted-foreground">
-                  No upcoming automations scheduled
-                </p>
-              </div>
-            </div>
-            
-            <div className="glass-card p-6 transition duration-300 hover:shadow-md hover:bg-background/80">
-              <div className="flex justify-between items-start">
-                <div>
-                  <p className="text-muted-foreground text-sm font-medium">Content Syndication</p>
-                  <h3 className="text-3xl font-bold mt-1">0</h3>
-                </div>
-                <div className="p-2 bg-green-500/10 rounded-full">
-                  <Rss className="h-6 w-6 text-green-500" />
-                </div>
-              </div>
-              <div className="mt-4 pt-4 border-t border-border">
-                <p className="text-sm text-muted-foreground">
-                  Connect RSS feeds to automatically post content
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Connected Platforms */}
-          <SocialConnections />
-          
-          {/* Empty State - Recent Posts */}
-          <div>
-            <h2 className="text-xl font-semibold mb-4">Recent Automations</h2>
-            <div className="glass-card p-8 text-center">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <PlusCircle className="h-8 w-8 text-primary" />
-              </div>
-              <h3 className="text-xl font-medium mb-2">No automated posts yet</h3>
-              <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                Create your first automation to schedule and post content across multiple platforms simultaneously.
+              <h1 className="text-3xl font-bold text-foreground">Welcome{user?.email ? `, ${user.email.split('@')[0]}` : ''}!</h1>
+              <p className="text-muted-foreground mt-1">
+                Manage and automate your social media content in one place
               </p>
-              <Button asChild className="rounded-full animate-pulse hover:animate-none">
-                <Link to="/dashboard/new-post">Create Your First Automation</Link>
-              </Button>
+            </div>
+          </div>
+
+          {/* Main dashboard grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Left column - wider for social connections */}
+            <div className="lg:col-span-2 space-y-6">
+              <Card className="p-6 bg-gradient-to-br from-background to-secondary/20 border border-border">
+                <h2 className="text-xl font-semibold mb-4">Social Media Connections</h2>
+                <SocialConnections />
+              </Card>
+              
+              {/* Additional dashboard cards can go here */}
+            </div>
+            
+            {/* Right column - automations & integrations */}
+            <div className="space-y-6">
+              <N8nIntegration />
+              
+              {/* Subscription status card */}
+              <Card className="p-6 bg-gradient-to-br from-background to-secondary/20 border border-border">
+                <div className="flex items-start space-x-4">
+                  <div className="bg-primary/10 p-2 rounded-full">
+                    {subscription ? (
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                      </svg>
+                    ) : (
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                      </svg>
+                    )}
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-medium">Subscription</h3>
+                    <p className="text-muted-foreground">
+                      {subscriptionLoading 
+                        ? "Loading subscription status..."
+                        : subscription 
+                          ? `${subscription.plan_id.charAt(0).toUpperCase() + subscription.plan_id.slice(1)} plan - Active` 
+                          : "No active subscription"}
+                    </p>
+                  </div>
+                </div>
+              </Card>
             </div>
           </div>
         </div>
       </main>
-      
-      {/* AI Chatbot */}
-      <AIChatbot />
     </div>
   );
 };
