@@ -1,0 +1,15 @@
+
+[build]
+command = ""
+
+[deploy]
+keep_alive = true # Required for subscription listeners to stay active
+
+# Required for realtime functionality to work
+[[env.shared]]
+name = "SUPABASE_URL"
+value = "https://qgctizhfwngianypbztg.supabase.co"
+
+[[env.shared]]
+name = "SUPABASE_SERVICE_ROLE_KEY"
+value = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFnY3Rpemhmd25naWFueXBienRnIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0Mjk1Njg3NywiZXhwIjoyMDU4NTMyODc3fQ.xaXCRNnF8vUwcyPEM-F5m7Hk-9DGAn3Bo26u5UCoCGQ"

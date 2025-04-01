@@ -39,3 +39,26 @@ export const triggerN8nWebhook = async (webhookUrl: string, data: any = {}) => {
     throw error;
   }
 };
+
+/**
+ * Start the subscription webhook listener in Supabase
+ * This will call an Edge Function that listens for new subscriptions
+ * and forwards them to the n8n webhook
+ */
+export const startSubscriptionListener = async () => {
+  try {
+    const response = await fetch('https://qgctizhfwngianypbztg.functions.supabase.co/subscription-webhook', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+    
+    const data = await response.json();
+    console.log("Subscription webhook listener status:", data);
+    return data;
+  } catch (error) {
+    console.error("Error starting subscription webhook listener:", error);
+    throw error;
+  }
+};
