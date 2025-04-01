@@ -56,6 +56,7 @@ export const en = {
   "dashboard_connect_rss": "Connect RSS feeds to automatically post content",
   "dashboard_connected_platforms": "Connected Platforms",
   "dashboard_connect_more": "Connect More Platforms",
+  "dashboard_sync_automations": "Sync with Automations",
   "dashboard_connect_accounts": "Connect your social media accounts to start posting content across platforms",
   "dashboard_recent_automations": "Recent Automations",
   "dashboard_no_posts": "No automated posts yet",

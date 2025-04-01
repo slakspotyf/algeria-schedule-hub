@@ -56,6 +56,7 @@ export const ar = {
   "dashboard_connect_rss": "قم بتوصيل خلاصات RSS لنشر المحتوى تلقائياً",
   "dashboard_connected_platforms": "المنصات المتصلة",
   "dashboard_connect_more": "توصيل المزيد من المنصات",
+  "dashboard_sync_automations": "مزامنة مع الأتمتة",
   "dashboard_connect_accounts": "قم بتوصيل حسابات وسائل التواصل الاجتماعي الخاصة بك لبدء نشر المحتوى عبر المنصات",
   "dashboard_recent_automations": "عمليات الأتمتة الأخيرة",
   "dashboard_no_posts": "لا توجد منشورات مؤتمتة حتى الآن",

@@ -56,6 +56,7 @@ export const fr = {
   "dashboard_connect_rss": "Connectez des flux RSS pour publier automatiquement du contenu",
   "dashboard_connected_platforms": "Plateformes Connectées",
   "dashboard_connect_more": "Connecter Plus de Plateformes",
+  "dashboard_sync_automations": "Synchroniser avec les Automatisations",
   "dashboard_connect_accounts": "Connectez vos comptes de médias sociaux pour commencer à publier du contenu sur plusieurs plateformes",
   "dashboard_recent_automations": "Automatisations Récentes",
   "dashboard_no_posts": "Pas encore de publications automatisées",
