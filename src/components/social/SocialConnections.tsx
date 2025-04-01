@@ -9,6 +9,7 @@ import { PlusCircle, AlertCircle } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import PlatformIcon from './PlatformIcon';
 import { usePlatformConnection } from '@/hooks/usePlatformConnection';
+import { triggerN8nWebhook, startSubscriptionListener } from '@/utils/n8nIntegration';
 
 const SocialConnections = () => {
   const { platforms, isLoading, connectPlatform, disconnectPlatform, refreshPlatforms } = usePlatformConnections();
@@ -25,7 +26,43 @@ const SocialConnections = () => {
   // Check for OAuth response in URL when component mounts
   useEffect(() => {
     checkOAuthResponse();
+    
+    // Start the subscription listener when the component mounts
+    const initializeWebhook = async () => {
+      try {
+        await startSubscriptionListener();
+        console.log("Subscription webhook listener started");
+      } catch (error) {
+        console.error("Failed to start subscription webhook listener:", error);
+      }
+    };
+    
+    initializeWebhook();
   }, []);
+
+  // Notify n8n when platforms change
+  useEffect(() => {
+    if (user && platforms.length > 0 && !isLoading) {
+      const connectedPlatforms = platforms.filter(p => p.isConnected).map(p => p.name);
+      
+      // Only send the webhook if there are connected platforms
+      if (connectedPlatforms.length > 0) {
+        const webhookUrl = "https://achraf40.app.n8n.cloud/webhook/91b1d56c-b9a2-49db-9671-d7e4260765de";
+        
+        triggerN8nWebhook(webhookUrl, {
+          user_email: user.email,
+          user_id: user.id,
+          connected_platforms: connectedPlatforms,
+          event_type: "platform_connection_update",
+          timestamp: new Date().toISOString()
+        }).then(() => {
+          console.log("n8n webhook triggered for platform updates");
+        }).catch(error => {
+          console.error("Error triggering n8n webhook:", error);
+        });
+      }
+    }
+  }, [platforms, user, isLoading]);
 
   // Filter to only show YouTube, TikTok, Facebook, Instagram
   const filteredPlatforms = platforms.filter(p => 
@@ -76,9 +113,27 @@ const SocialConnections = () => {
             )}
             
             <div className="mt-6 flex justify-center">
-              <Button variant="outline" size="sm" className="text-muted-foreground group transition-all duration-300 hover:bg-primary/5">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="text-muted-foreground group transition-all duration-300 hover:bg-primary/5"
+                onClick={() => {
+                  const webhookUrl = "https://achraf40.app.n8n.cloud/webhook/91b1d56c-b9a2-49db-9671-d7e4260765de";
+                  if (user) {
+                    triggerN8nWebhook(webhookUrl, {
+                      user_email: user.email,
+                      request_type: "sync_all_platforms"
+                    }).then(() => {
+                      toast({
+                        title: "Automation Started",
+                        description: "Your social media platforms are being synced with automations",
+                      });
+                    });
+                  }
+                }}
+              >
                 <PlusCircle className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform duration-300" /> 
-                {t('dashboard_connect_more')}
+                {hasConnections ? t('dashboard_sync_automations') : t('dashboard_connect_more')}
               </Button>
             </div>
           </>

@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { getProviderName } from '@/utils/platformUtils';
 import { signInWithProvider } from '@/lib/supabase';
 import { supabase } from '@/lib/supabase';
+import { triggerN8nWebhook } from '@/utils/n8nIntegration';
 
 export const usePlatformConnection = (
   refreshPlatforms: () => void,
@@ -31,6 +32,16 @@ export const usePlatformConnection = (
     try {
       if (platform.isConnected) {
         await disconnectPlatform(platform.name);
+        
+        // Notify n8n about disconnection
+        const webhookUrl = "https://achraf40.app.n8n.cloud/webhook/91b1d56c-b9a2-49db-9671-d7e4260765de";
+        await triggerN8nWebhook(webhookUrl, {
+          user_email: user.email,
+          platform: platform.name,
+          event_type: "platform_disconnected",
+          timestamp: new Date().toISOString()
+        });
+        
         toast({
           title: "Platform disconnected",
           description: `Your ${platform.name} account has been disconnected`
@@ -48,11 +59,28 @@ export const usePlatformConnection = (
           // Success toast will be shown after return from OAuth flow
         } else {
           // For platforms without direct OAuth
-          await connectPlatform(platform.name);
-          toast({
-            title: "API Connection Required",
-            description: `Please go to the Connections page to set up your ${platform.name} API credentials`
-          });
+          const connected = await connectPlatform(platform.name);
+          
+          if (connected) {
+            // Notify n8n about new connection
+            const webhookUrl = "https://achraf40.app.n8n.cloud/webhook/91b1d56c-b9a2-49db-9671-d7e4260765de";
+            await triggerN8nWebhook(webhookUrl, {
+              user_email: user.email,
+              platform: platform.name,
+              event_type: "platform_connected",
+              timestamp: new Date().toISOString()
+            });
+            
+            toast({
+              title: "Platform Connected",
+              description: `Your ${platform.name} connection has been set up`
+            });
+          } else {
+            toast({
+              title: "API Connection Required",
+              description: `Please go to the Connections page to set up your ${platform.name} API credentials`
+            });
+          }
         }
       }
     } catch (error) {
@@ -86,7 +114,18 @@ export const usePlatformConnection = (
         profileData: session.user?.user_metadata
       };
       
-      await connectPlatform(providerInfo);
+      const connected = await connectPlatform(providerInfo);
+      
+      if (connected && user) {
+        // Notify n8n about new OAuth connection
+        const webhookUrl = "https://achraf40.app.n8n.cloud/webhook/91b1d56c-b9a2-49db-9671-d7e4260765de";
+        await triggerN8nWebhook(webhookUrl, {
+          user_email: user.email,
+          platform: providerInfo,
+          event_type: "platform_connected_oauth",
+          timestamp: new Date().toISOString()
+        });
+      }
       
       toast({
         title: "Platform Connected",
